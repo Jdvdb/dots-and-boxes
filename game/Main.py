@@ -7,8 +7,10 @@ if __name__ == "__main__":
     # all of this is test stuff right now
     print('play game')
     tempGame = DotsAndBoxes.DotsAndBoxes()
-    tempGame.addLine(0, 0, 0)
-    tempGame.addLine(0, 4, 3)
-    tempGame.addLine(0, 4, 7)
-    tempGame.addLine(1, 0, 4)
+
+    tempGame.addLine(1, 2, 5)
+    tempGame.addLine(0, 6, 2)
+    tempGame.addLine(0, 5, 2)
+    tempGame.addLine(1, 3, 5)
+
     tempGame.printBoard()

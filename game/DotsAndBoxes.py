@@ -61,6 +61,8 @@ class DotsAndBoxes:
                 self.moves.add((0, row, col))
 
     def addLine(self, direction, dotInd, lineInd):
+        # TODO: add check at the start to make sure given moves are legal to avoid bugs
+        # TODO; more rigorous error testing, seems good but I'm not 100% sure things are good
         """
         Add a line to the current board game, remove it from the set, and switch players
         direction: 0 for horizontal line, 1 for vertical line
@@ -82,10 +84,12 @@ class DotsAndBoxes:
             self.cols[dotInd][lineInd] = 1
             self.moves.remove((1, dotInd, lineInd))
         # after adding line, check if the player got a point and then see if the game is over
-        self.checkPoint(direction, dotInd, lineInd)
+        goAgain = self.checkPoint(direction, dotInd, lineInd)
         self.checkEnd()
+
         # switch the player
-        self.player = not self.player
+        if not goAgain:
+            self.player = not self.player
 
     def checkPoint(self, direction, dotInd, lineInd):
         """
@@ -95,10 +99,44 @@ class DotsAndBoxes:
         lineInd: if horizontal, the actual gap the line would be drawn in
         No values returned
         """
+        # this will be the value added to player score at the end
+        pointEarned = 0
         if direction == 0:
-            pass
+            # check if there is a line above and then see if you can make a box
+            if dotInd > 0:
+                if self.rows[dotInd - 1][lineInd] and self.cols[lineInd][dotInd-1] and self.cols[lineInd][dotInd-1]:
+                    pointEarned = 1
+                    print("point!")
+            # check if there is a line bellow and then see if you can make a box
+            if dotInd < self.rowDots - 1:
+                if self.rows[dotInd + 1][lineInd] and self.cols[lineInd][dotInd] and self.cols[lineInd+1][dotInd]:
+                    pointEarned = 1
+                    print("point!")
+
         else:
-            pass
+            if dotInd > 0:
+                # check if there is a line to the left and then see if you can make a box
+                if self.cols[dotInd - 1][lineInd] and self.rows[lineInd][dotInd-1] and self.rows[lineInd+1][dotInd-1]:
+                    pointEarned = 1
+                    print("point!")
+                    # check if there is a line to the right and then see if you can make a box
+
+            if dotInd < self.colDots - 1:
+                if self.cols[dotInd - 1][lineInd] and self.rows[lineInd][dotInd] and self.rows[lineInd+1][dotInd]:
+                    pointEarned = 1
+                    print("point!")
+
+        # add earned points to the correct player
+        if self.player:
+            self.P1Score += pointEarned
+        else:
+            self.P2Score += pointEarned
+
+        # if player should go again, return true
+        if pointEarned > 0:
+            return True
+        else:
+            return False
 
     def checkEnd(self):
         """
@@ -115,7 +153,14 @@ class DotsAndBoxes:
         Prints the current board state to the console
         Returns nothing
         """
-        # print(self.rows)
+        # show player scores and turn
+        if self.player:
+            print("Player turn: P1")
+        else:
+            print("Player turn: P2")
+        print("P1 Score:", self.P1Score)
+        print("P2 Score:", self.P2Score)
+        print("board:")
         for col in range(self.rowDots):
             for row in range(self.colDots):
                 # print dots across a row
