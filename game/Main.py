@@ -16,9 +16,4 @@ if __name__ == "__main__":
     #     for j in range(6):
     #         tempGame.addLine(1, i, j)
 
-    tempGame.addLine(0, 2, 2)
-    tempGame.addLine(0, 3, 2)
-    tempGame.addLine(1, 2, 2)
-    tempGame.addLine(1, 3, 2)
-
     tempGame.printBoard()
