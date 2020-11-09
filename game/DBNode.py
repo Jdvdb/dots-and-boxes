@@ -5,7 +5,7 @@ import DotsAndBoxes
 """
 inputGame: a DotsAndBoxes game for the current state
 myId: a unique number to represent this board state
-parentId: the unique Id of the parent state
+parentId: the unique ID of the parent state
 move: a tuple for the move that transitioned the parent state to this one
 """
 
@@ -18,7 +18,7 @@ class DBNode:
         self.parent = parentId
         self.newMove = move
 
-        # children is a set of all the children Ids of this node
+        # children is a set of all the children IDs of this node
         self.children = set()
 
         # values used in the MCTS process
