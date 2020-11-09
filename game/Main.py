@@ -8,9 +8,17 @@ if __name__ == "__main__":
     print('play game')
     tempGame = DotsAndBoxes.DotsAndBoxes()
 
-    tempGame.addLine(1, 2, 5)
-    tempGame.addLine(0, 6, 2)
-    tempGame.addLine(0, 5, 2)
-    tempGame.addLine(1, 3, 5)
+    # for i in range(7):
+    #     for j in range(8):
+    #         tempGame.addLine(0, i, j)
+
+    # for i in range(10):
+    #     for j in range(6):
+    #         tempGame.addLine(1, i, j)
+
+    tempGame.addLine(0, 2, 2)
+    tempGame.addLine(0, 3, 2)
+    tempGame.addLine(1, 2, 2)
+    tempGame.addLine(1, 3, 2)
 
     tempGame.printBoard()

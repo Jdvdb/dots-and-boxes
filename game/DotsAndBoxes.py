@@ -72,12 +72,20 @@ class DotsAndBoxes:
         """
 
         if direction == 0:
+            # make sure inputs are valid for horizontal pieces
+            if dotInd >= 7 or lineInd >= 8:
+                print("Invalid move, out of bounds")
+                return
             if self.rows[dotInd][lineInd] == 1:
                 print('A line already exists there, try again')
                 return
             self.rows[dotInd][lineInd] = 1
             self.moves.remove((0, dotInd, lineInd))
         else:
+            # make sure moves are valid for vertical pieces
+            if dotInd >= 9 or lineInd >= 6:
+                print("Invalid move, out of bounds")
+                return
             if self.cols[dotInd][lineInd] == 1:
                 print("A line already exists there, try again")
                 return
@@ -153,6 +161,10 @@ class DotsAndBoxes:
         Prints the current board state to the console
         Returns nothing
         """
+        # print arrays
+        print("row and col")
+        print(self.rows)
+        print(self.cols)
         # show player scores and turn
         if self.player:
             print("Player turn: P1")
@@ -176,7 +188,7 @@ class DotsAndBoxes:
             print()
             # print vertical lines where needed before next row
             if col < 6:
-                for row in range(self.colSpaces):
+                for row in range(self.colDots):
                     if self.cols[row][col] == 0:
                         print("  ", end="")
                     else:
