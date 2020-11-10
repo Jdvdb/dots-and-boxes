@@ -73,7 +73,7 @@ class DotsAndBoxes:
 
         if direction == 0:
             # make sure inputs are valid for horizontal pieces
-            if dotInd >= 7 or lineInd >= 8:
+            if dotInd >= self.rowDots or lineInd >= self.rowSpaces:
                 print("Invalid move, out of bounds")
                 return
             if self.rows[dotInd][lineInd] == 1:
@@ -83,7 +83,7 @@ class DotsAndBoxes:
             self.moves.remove((0, dotInd, lineInd))
         else:
             # make sure moves are valid for vertical pieces
-            if dotInd >= 9 or lineInd >= 6:
+            if dotInd >= self.colDots or lineInd >= self.colSpaces:
                 print("Invalid move, out of bounds")
                 return
             if self.cols[dotInd][lineInd] == 1:
@@ -187,7 +187,7 @@ class DotsAndBoxes:
 
             print()
             # print vertical lines where needed before next row
-            if col < 6:
+            if col < self.colSpaces:
                 for row in range(self.colDots):
                     if self.cols[row][col] == 0:
                         print("  ", end="")
