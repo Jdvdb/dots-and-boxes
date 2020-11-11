@@ -2,6 +2,7 @@
 import DotsAndBoxes
 import DBNode
 import random
+import math
 
 # NOTE right now it is assumed computer is P1, this will be fixed once the code works
 
@@ -58,7 +59,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             numRollouts += 1
         # if children were found, then begin a rollout from a random position
         else:
-            # bug warning: make sure this does not turn the children set into a tuple
+            # BUG: make sure this does not turn the children set into a tuple
             randChild = random.choice(tuple(currentNode.children))
             currentNode = tree[randChild]
             depth += 1
@@ -86,7 +87,30 @@ Returns the ID of the next node to be explored
 
 
 def UCT(tree, currentNode):
-    pass
+    # this is the value that will be returned
+    bestId = -1
+    # this will be the value for the most promising node
+    maxUCT = -math.inf
+    # this is the number of times the parent node was visited
+    parentSimulations = currentNode.visitCount
+
+    # iterate through each child
+    # TODO: mess around with constants for good balance
+    for childId in currentNode.children:
+        # testNode is the node being investigated
+        testNode = tree[childId]
+
+        exploit = currentNode.reward / currentNode.visitCount
+        explore = 20*math.sqrt(math.log(parentSimulations) /
+                               currentNode.visitCounts)
+
+        # UCT is based on exploration and exploitation
+        testUCT = exploit + explore
+
+        if maxUCT < testUCT:
+            bestId = childId
+            maxUCT = testUCT
+    return bestId
 
 
 """
@@ -98,7 +122,18 @@ currentId: the ID value that should be used to start assigning values to the chi
 
 
 def expand(tree, currentNode, currentId):
-    pass
+    # create a child for each available node in the game's available moves
+    for move in currentNode.board.moves:
+        # create a game with the new move
+        tempGame = currentNode.board
+        tempGame.addLine(move)
+
+        # create this new state in the tree and add it as a child to the current node
+        tree[currentId] = DBNode(tempGame, currentId, currentNode.id, move)
+        currentNode.addChild(currentId)
+
+        # increment the ID
+        currentId += 1
 
 
 """
@@ -109,7 +144,19 @@ Returns a reward found from P1score-P2score
 
 
 def rollout(currentNode):
-    pass
+    # node that will be used for simulation
+    tempNode = currentNode
+    # flag for when simulation finishes
+    finished = False
+
+    while not finished:
+        # BUG: make sure tuple here does not change the set
+        # select a random move available in the game
+        play = random.choice(tuple(tempNode.children))
+        # this will return True if the game is done
+        finished = tempNode.board.addLine(play)
+
+    return tempNode.board.P1Score - tempNode.board.P2Score
 
 
 """
@@ -124,7 +171,21 @@ No return
 
 
 def backPropogation(tree, currentNode, reward, rootId, depth):
-    pass
+    # modifier for the reward value TODO check it
+    rewardMultiplier = 1
+
+    # traverse back up the tree
+    while currentNode.id != rootId:
+        currentNode.visitCount += 1
+
+        # TODO modify how reward multiplier works based on player vs computer win
+
+        # set the current node to the parent
+        currentNode = tree[currentNode.parent]
+
+    # update the root's visit and reward values too
+    currentNode.visitCount += 1
+    currentNode.reward += rewardMultiplier * reward
 
 
 """
@@ -136,4 +197,20 @@ Returns the ID of the next most promising game state
 
 
 def maxChild(tree, currentNode):
-    pass
+    # values for the max win score and the node's ID
+    maxValue = -math.inf
+    maxId = 0
+
+    for child in currentNode.children:
+        tempNode = tree[child]
+        # best node has the greatest reward compared to visit count
+        winValue = tempNode.reward / tempNode.visitCount
+
+        if winValue > maxValue:
+            maxValue = winValue
+            maxId = child
+
+        print("Move:", tempNode.move, "Win Value:",
+              winValue, "Visits:", tempNode.visitCount)
+
+    return maxId
