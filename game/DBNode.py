@@ -22,8 +22,8 @@ class DBNode:
         self.children = set()
 
         # values used in the MCTS process
-        visitCount = 1
-        reward = 0
+        self.visitCount = 1
+        self.reward = 0
 
     def addChild(self, child):
         self.children.add(child)

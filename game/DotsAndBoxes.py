@@ -22,7 +22,7 @@ class DotsAndBoxes:
         self.moves = set()
         self.initializeMoves()
 
-        # True means P1 will make the next move, False means P2 will make the next move
+        # True means AI will make the next move, False means Human will make the next move
         self.player = True
 
         # scores for first and second player
@@ -68,36 +68,37 @@ class DotsAndBoxes:
         direction: 0 for horizontal line, 1 for vertical line
         dotInd: if horizontal, the row # the line will be in
         lineInd: if horizontal, the actual gap the line would be drawn in
-        Returns True if this ends the game, false otherwise
+        Returns True if a valid move, false otherwise
         """
 
         if direction == 0:
             # make sure inputs are valid for horizontal pieces
             if dotInd >= self.rowDots or lineInd >= self.rowSpaces:
                 print("Invalid move, out of bounds")
-                return
+                return False
             if self.rows[dotInd][lineInd] == 1:
                 print('A line already exists there, try again')
-                return
+                return False
             self.rows[dotInd][lineInd] = 1
             self.moves.remove((0, dotInd, lineInd))
         else:
             # make sure moves are valid for vertical pieces
             if dotInd >= self.colDots or lineInd >= self.colSpaces:
                 print("Invalid move, out of bounds")
-                return
+                return False
             if self.cols[dotInd][lineInd] == 1:
                 print("A line already exists there, try again")
-                return
+                return False
             self.cols[dotInd][lineInd] = 1
             self.moves.remove((1, dotInd, lineInd))
         # after adding line, check if the player got a point and then see if the game is over
         goAgain = self.checkPoint(direction, dotInd, lineInd)
-        self.checkEnd()
 
         # switch the player
         if not goAgain:
             self.player = not self.player
+
+        return True
 
     def checkPoint(self, direction, dotInd, lineInd):
         """
@@ -114,25 +115,20 @@ class DotsAndBoxes:
             if dotInd > 0:
                 if self.rows[dotInd - 1][lineInd] and self.cols[lineInd][dotInd-1] and self.cols[lineInd][dotInd-1]:
                     pointEarned = 1
-                    print("point!")
             # check if there is a line bellow and then see if you can make a box
             if dotInd < self.rowDots - 1:
                 if self.rows[dotInd + 1][lineInd] and self.cols[lineInd][dotInd] and self.cols[lineInd+1][dotInd]:
                     pointEarned = 1
-                    print("point!")
-
         else:
             if dotInd > 0:
                 # check if there is a line to the left and then see if you can make a box
                 if self.cols[dotInd - 1][lineInd] and self.rows[lineInd][dotInd-1] and self.rows[lineInd+1][dotInd-1]:
                     pointEarned = 1
-                    print("point!")
                     # check if there is a line to the right and then see if you can make a box
 
             if dotInd < self.colDots - 1:
                 if self.cols[dotInd - 1][lineInd] and self.rows[lineInd][dotInd] and self.rows[lineInd+1][dotInd]:
                     pointEarned = 1
-                    print("point!")
 
         # add earned points to the correct player
         if self.player:

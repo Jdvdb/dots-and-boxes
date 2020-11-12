@@ -3,6 +3,8 @@ import DotsAndBoxes
 import DBNode
 import random
 import math
+import copy
+from pdb import set_trace as bp
 
 # NOTE right now it is assumed computer is P1, this will be fixed once the code works
 
@@ -13,7 +15,7 @@ currentId: the next ID value to be used in children creation
 rootId: ID of the root for this search
 rollouts: number of rollouts to be performed
 greed: determine how much the algorithm favours quick moves
-Returns the ID of the next move the AI will choose
+Returns the ID of the next move the AI will choose AND the value for currentId
 """
 
 
@@ -21,9 +23,11 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
     # generate random seed for simulations
     random.seed()
 
+    test = True
+
     # get the root of the tree and increment ID counter
     root = tree[rootId]
-    currentId += 1
+    # BUG possible increment currentId here
 
     # this is the node referenced when traversing the tree
     currentNode = root
@@ -34,7 +38,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
         # start currentNode at the root
         currentNode = tree[root.id]
 
-        # depth of the tree before simulation
+        # depth of the  tree before simulation
         depth = 0
 
         # traverse to the end of the tree based on UCT
@@ -44,13 +48,22 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             currentNode = tree[nextNodeId]
 
         # first check if a node should have neighbours and if it does, then add them to children
-        if not currentNode.checkEnd():
-            expand(tree, currentNode, currentId)
+        if not currentNode.board.checkEnd():
+            # note that currentId is updated at the end
+            currentId = expand(tree, currentNode, currentId)
 
         # if no children were found, then backpropogate this value
         if len(currentNode.children) == 0:
+            reward = 0
             # the reward will be calculated as (p1score - p2score)/depth in the algorithm
-            reward = currentNode.P1Score - currentNode.P2Score
+            if currentNode.board.P1Score > currentNode.board.P2Score:
+                reward = 1
+            else:
+                reward = -1
+
+            # old point system bellow
+            # reward = currentNode.board.P1Score - currentNode.board.P2Score
+
             # add greedyness to the reward
             reward *= greed
 
@@ -59,7 +72,6 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             numRollouts += 1
         # if children were found, then begin a rollout from a random position
         else:
-            # BUG: make sure this does not turn the children set into a tuple
             randChild = random.choice(tuple(currentNode.children))
             currentNode = tree[randChild]
             depth += 1
@@ -73,9 +85,9 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             backPropogation(tree, currentNode, reward, rootId, depth)
             numRollouts += 1
 
-        # find the best child of the root node and return the id
-        bestNodeId = maxChild(tree, root)
-        return bestNodeId
+    # find the best child of the root node and return the id
+    bestNodeId = maxChild(tree, root)
+    return bestNodeId, currentId
 
 
 """
@@ -92,7 +104,7 @@ def UCT(tree, currentNode):
     # this will be the value for the most promising node
     maxUCT = -math.inf
     # this is the number of times the parent node was visited
-    parentSimulations = currentNode.visitCount
+    parentSimulations = float(currentNode.visitCount)
 
     # iterate through each child
     # TODO: mess around with constants for good balance
@@ -100,16 +112,18 @@ def UCT(tree, currentNode):
         # testNode is the node being investigated
         testNode = tree[childId]
 
-        exploit = currentNode.reward / currentNode.visitCount
-        explore = 20*math.sqrt(math.log(parentSimulations) /
-                               currentNode.visitCounts)
+        exploit = float(testNode.reward) / float(testNode.visitCount)
+        explore = 10*math.sqrt(math.log(parentSimulations) /
+                               float(testNode.visitCount))
 
         # UCT is based on exploration and exploitation
         testUCT = exploit + explore
 
         if maxUCT < testUCT:
+            # print("new max:", explore, exploit, testUCT)
             bestId = childId
             maxUCT = testUCT
+    # print("Found best")
     return bestId
 
 
@@ -118,44 +132,56 @@ Expands the tree by adding all of the children of some node
 tree: dictionary with IDs as keys and their respectives nodes as the values
 currentNode: the ID of the current node
 currentId: the ID value that should be used to start assigning values to the children
+Returns the new value for currentId
 """
 
 
 def expand(tree, currentNode, currentId):
+    tempNode = copy.deepcopy(currentNode)
+    parentId = copy.deepcopy(currentNode.id)
     # create a child for each available node in the game's available moves
-    for move in currentNode.board.moves:
+    for move in tempNode.board.moves:
         # create a game with the new move
-        tempGame = currentNode.board
-        tempGame.addLine(move)
+        tempGame = copy.deepcopy(currentNode.board)
+        (direction, dotInd, lineInd) = move
+        tempGame.addLine(direction, dotInd, lineInd)
 
         # create this new state in the tree and add it as a child to the current node
-        tree[currentId] = DBNode(tempGame, currentId, currentNode.id, move)
-        currentNode.addChild(currentId)
+        tree[currentId] = DBNode.DBNode(
+            tempGame, currentId, parentId, move)
+        tree[parentId].addChild(currentId)
 
         # increment the ID
         currentId += 1
+    return currentId
 
 
 """
 Will play out one full game of dots and boxes randomly
 currentNode: the current piece being investigated
-Returns a reward found from P1score-P2score
+Returns a reward for the game
 """
 
 
 def rollout(currentNode):
     # node that will be used for simulation
-    tempNode = currentNode
-    # flag for when simulation finishes
-    finished = False
+    tempNode = copy.deepcopy(currentNode)
+    i = 0
 
-    while not finished:
+    while len(tempNode.board.moves) != 0:
+        i += 1
         # BUG: make sure tuple here does not change the set
         # select a random move available in the game
-        play = random.choice(tuple(tempNode.children))
+        play = random.choice(tuple(tempNode.board.moves))
+        (direction, dotInd, lineInd) = play
         # this will return True if the game is done
-        finished = tempNode.board.addLine(play)
+        tempNode.board.addLine(direction, dotInd, lineInd)
 
+    # TODO check if this should just be static value for win vs loss
+    # if tempNode.board.P1Score - tempNode.board.P2Score > 0:
+    #     return 1
+    # else:
+    #     return -1
     return tempNode.board.P1Score - tempNode.board.P2Score
 
 
@@ -171,12 +197,10 @@ No return
 
 
 def backPropogation(tree, currentNode, reward, rootId, depth):
-    # modifier for the reward value TODO check it
-    rewardMultiplier = 1
-
     # traverse back up the tree
     while currentNode.id != rootId:
-        currentNode.visitCount += 1
+        tree[currentNode.id].visitCount += 1
+        tree[currentNode.id].reward += reward
 
         # TODO modify how reward multiplier works based on player vs computer win
 
@@ -184,8 +208,9 @@ def backPropogation(tree, currentNode, reward, rootId, depth):
         currentNode = tree[currentNode.parent]
 
     # update the root's visit and reward values too
-    currentNode.visitCount += 1
-    currentNode.reward += rewardMultiplier * reward
+    tree[rootId].visitCount += 1
+    tree[rootId].reward += reward
+    tree
 
 
 """
@@ -202,6 +227,7 @@ def maxChild(tree, currentNode):
     maxId = 0
 
     for child in currentNode.children:
+        print("Child", child, "visits", tree[child].visitCount)
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
         winValue = tempNode.reward / tempNode.visitCount
@@ -210,7 +236,7 @@ def maxChild(tree, currentNode):
             maxValue = winValue
             maxId = child
 
-        print("Move:", tempNode.move, "Win Value:",
-              winValue, "Visits:", tempNode.visitCount)
+        # print("Move:", tempNode.newMove, "Win Value:",
+        #       winValue, "Visits:", tempNode.visitCount)
 
     return maxId
