@@ -6,11 +6,11 @@ class DotsAndBoxes:
     def __init__(self):
         # these values will describe how to setup rows/cols
         # there are 7 rows of dots, each with 8 spaces
-        self.rowSpaces = 8
-        self.rowDots = 7
+        self.rowSpaces = 6
+        self.rowDots = 5
         # there are 9 columns of dots, each with 6 spaces
-        self.colSpaces = 6
-        self.colDots = 9
+        self.colSpaces = 4
+        self.colDots = 7
 
         # rows describe all of the horizontal lines, 0 is empty, 1 is line
         self.rows = []
