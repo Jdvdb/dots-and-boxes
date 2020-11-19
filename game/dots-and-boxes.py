@@ -10,6 +10,10 @@ WIDTH = 800
 HEIGHT = 600
 GAME_WIDTH = 500
 GAME_HEIGHT = 500
+DOT_RADIUS = 10
+DOT_SPACING = 50
+DOT_CENTER_HEIGHT = 300
+DOT_CENTER_WIDTH = 400
 
 
 def setup(screen):
@@ -34,7 +38,32 @@ def setup(screen):
     screen.blit(text, text_rect)
 
     pygame.display.update()
-
+    
+    #draw dots
+    
+    #pygame.draw.circle(screen, BLACK, (DOT_CENTER_WIDTH , DOT_CENTER_HEIGHT), DOT_RADIUS)
+    
+    rows = 6 # of dots
+    cols = 6 # of dots
+    
+    
+    #this loop will only work for odd rows and columns
+    if (rows%2 != 0 and cols%2 != 0):
+        for i in range(-(rows-rows//2)+1, rows-rows//2):
+            for j in range(-(cols-cols//2)+1, cols-cols//2):
+                pygame.draw.circle(screen, BLACK, (DOT_CENTER_WIDTH + (i*DOT_SPACING), DOT_CENTER_HEIGHT + (j*DOT_SPACING)), DOT_RADIUS)
+            
+    #this loop will only work for even rows and columns
+    if (rows%2 == 0 and cols%2 == 0):
+        for i in range(-(rows-rows//2), rows-rows//2):
+            for j in range(-(cols-cols//2), cols-cols//2):
+                pygame.draw.circle(screen, BLACK, (DOT_CENTER_WIDTH + ((2*i+1)*DOT_SPACING//2), DOT_CENTER_HEIGHT + ((2*j+1)*DOT_SPACING//2)), DOT_RADIUS)
+    
+    
+    
+    
+    
+    
 
 def main():
     # initialize pygame and create the screen
