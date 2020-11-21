@@ -62,17 +62,16 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
 
         # if no children were found, then backpropogate this value
         if len(currentNode.children) == 0:
+            # the value that will be back propogated
             reward = 0
 
-            # determine if this helps the ai or the computer
-            if currentNode.board.player != root.board.player:
-                # the reward will be calculated as (p1score - p2score)/depth in the algorithm
-                if currentNode.board.P1Score - currentNode.board.P2Score > 0 and currentNode.board.player:
-                    reward = float(1)
-                elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
-                    reward = float(1)
-                else:
-                    reward = float(-2 * len(currentNode.board.moves))
+            # the reward will be calculated as (p1score - p2score)/depth in the algorithm
+            if currentNode.board.P1Score - currentNode.board.P2Score > 0 and currentNode.board.player:
+                reward = float(1)
+            elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
+                reward = float(1)
+            else:
+                reward = float(-2 * len(currentNode.board.moves))
 
             # if currentNode.board.player:
             #     reward += float(currentNode.board.P1Score - 2 *
@@ -243,7 +242,7 @@ def backPropogation(tree, currentNode, reward, rootId, depth):
     # traverse back up the tree
     while currentNode.id != rootId:
         tree[currentNode.id].visitCount += 1
-        if currentNode.board.player != aiPlayer:
+        if currentNode.board.player == aiPlayer:
             tree[currentNode.id].reward += reward
         else:
             tree[currentNode.id].reward -= reward
@@ -255,7 +254,7 @@ def backPropogation(tree, currentNode, reward, rootId, depth):
 
     # update the root's visit and reward values too
     tree[rootId].visitCount += 1
-    if currentNode.board.player != tree[rootId].board.player:
+    if currentNode.board.player == tree[rootId].board.player:
         tree[rootId].reward += reward
     else:
         tree[rootId].reward -= reward
