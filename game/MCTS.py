@@ -23,14 +23,12 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
     # generate random seed for simulations
     random.seed()
 
-    test = True
-
+    # test values to tell how many UCT vs random searches are done
     rands = 0
     ucts = 0
 
     # get the root of the tree and increment ID counter
     root = tree[rootId]
-    # BUG possible increment currentId here
 
     # this is the node referenced when traversing the tree
     currentNode = root
@@ -65,11 +63,23 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
         # if no children were found, then backpropogate this value
         if len(currentNode.children) == 0:
             reward = 0
-            # the reward will be calculated as (p1score - p2score)/depth in the algorithm
-            if currentNode.board.P1Score > currentNode.board.P2Score:
-                reward = 1
-            else:
-                reward = -2
+
+            # determine if this helps the ai or the computer
+            if currentNode.board.player != root.board.player:
+                # the reward will be calculated as (p1score - p2score)/depth in the algorithm
+                if currentNode.board.P1Score - currentNode.board.P2Score > 0 and currentNode.board.player:
+                    reward = float(1)
+                elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
+                    reward = float(1)
+                else:
+                    reward = float(-15)
+
+            # if currentNode.board.player:
+            #     reward += float(currentNode.board.P1Score - 2 *
+            #                     currentNode.board.P2Score)/float(depth)
+            # elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
+            #     reward += float(currentNode.board.P2Score - 2 *
+            #                     currentNode.board.P1Score)/float(depth)
 
             # old point system bellow
             # reward = currentNode.board.P1Score - currentNode.board.P2Score
@@ -88,7 +98,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             depth += 1
 
             # perform a rollout on the child and collect the reward
-            reward = rollout(currentNode)
+            reward = rollout(currentNode, depth)
             # add greedyness to the reward if applicable
             reward *= greed
 
@@ -188,7 +198,7 @@ Returns a reward for the game
 """
 
 
-def rollout(currentNode):
+def rollout(currentNode, depth):
     # node that will be used for simulation
     tempNode = copy.deepcopy(currentNode)
     i = 0
@@ -202,12 +212,18 @@ def rollout(currentNode):
         # this will return True if the game is done
         tempNode.board.addLine(direction, dotInd, lineInd)
 
-    # TODO check if this should just be static value for win vs loss
-    if tempNode.board.P1Score - tempNode.board.P2Score > 0:
-        return 1
+    # if the AI won, give it a small reward, otherwise tell it not to suck and lose
+    if tempNode.board.P1Score - tempNode.board.P2Score > 0 and currentNode.board.player:
+        return float(1)
+    elif tempNode.board.P2Score - tempNode.board.P1Score > 0 and not currentNode.board.player:
+        return float(1)
     else:
-        return -2
-    # return tempNode.board.P1Score - tempNode.board.P2Score
+        return float(-15)
+
+    # if currentNode.board.player:
+    #     return float(currentNode.board.P1Score - 2*currentNode.board.P2Score)/float(depth)
+    # elif not currentNode.board.player:
+    #     return float(currentNode.board.P2Score - 2*currentNode.board.P1Score)/float(depth)
 
 
 """
@@ -222,10 +238,15 @@ No return
 
 
 def backPropogation(tree, currentNode, reward, rootId, depth):
+    # determine if AI is p1 or p2
+    aiPlayer = tree[rootId].board.player
     # traverse back up the tree
     while currentNode.id != rootId:
         tree[currentNode.id].visitCount += 1
-        tree[currentNode.id].reward += reward
+        if currentNode.board.player != aiPlayer:
+            tree[currentNode.id].reward += reward
+        else:
+            tree[currentNode.id].reward -= reward
 
         # TODO modify how reward multiplier works based on player vs computer win
 
@@ -254,11 +275,11 @@ def maxChild(tree, currentNode):
     print("total children:", len(currentNode.children))
 
     for child in currentNode.children:
-        print("Child", tree[child].newMove, "visits",
-              tree[child].visitCount, "reward:", tree[child].reward)
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
-        winValue = tempNode.reward / tempNode.visitCount
+        winValue = float(tempNode.reward) / float(tempNode.visitCount)
+        print("Child", tree[child].newMove, "visits",
+              tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
 
         if winValue > maxValue:
             maxValue = winValue

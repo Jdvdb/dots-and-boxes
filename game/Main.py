@@ -5,8 +5,8 @@ import MCTS
 from pdb import set_trace as bp
 
 
-def endGame():
-    print("game done, work on this later...")
+def endGame(board):
+    print("game done, work on this later...", board.boxes)
 
 
 # right now, assume computer plays first
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     greed = 1
 
     # number of rollouts to be performed
-    rollouts = 5000
+    rollouts = 8000
 
     # flag to keep playing the game
     playing = True
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
                 # check to see if finished the game
                 if tempGame.checkEnd():
-                    endGame()
+                    endGame(tempGame)
 
                 # update the root for the computer
                 root = tree[nextNode]

@@ -29,6 +29,10 @@ class DotsAndBoxes:
         self.P1Score = 0
         self.P2Score = 0
 
+        # 2D array to aid in drawing
+        self.boxes = []
+        self.initializeBoxes()
+
     def intializeRows(self):
         for i in range(self.rowDots):
             col = []
@@ -59,6 +63,14 @@ class DotsAndBoxes:
             for col in range(self.rowSpaces):
                 # 1 indicates this is a vertical line
                 self.moves.add((0, row, col))
+
+    def initializeBoxes(self):
+        #
+        for i in range(self.colSpaces):
+            row = []
+            for j in range(self.rowSpaces):
+                row.append(0)
+            self.boxes.append(row)
 
     def addLine(self, direction, dotInd, lineInd):
         # TODO: add check at the start to make sure given moves are legal to avoid bugs
@@ -115,20 +127,24 @@ class DotsAndBoxes:
             if dotInd > 0:
                 if self.rows[dotInd - 1][lineInd] and self.cols[lineInd][dotInd-1] and self.cols[lineInd + 1][dotInd-1]:
                     pointEarned = 1
+                    self.boxes[dotInd - 1][lineInd] = 1
             # check if there is a line bellow and then see if you can make a box
             if dotInd < self.rowDots - 1:
                 if self.rows[dotInd + 1][lineInd] and self.cols[lineInd][dotInd] and self.cols[lineInd+1][dotInd]:
                     pointEarned = 1
+                    self.boxes[dotInd][lineInd] = 1
         else:
             if dotInd > 0:
                 # check if there is a line to the left and then see if you can make a box
                 if self.cols[dotInd - 1][lineInd] and self.rows[lineInd][dotInd-1] and self.rows[lineInd+1][dotInd-1]:
                     pointEarned = 1
-                    # check if there is a line to the right and then see if you can make a box
+                    self.boxes[lineInd][dotInd - 1] = 1
 
+            # check if there is a line to the right and then see if you can make a box
             if dotInd < self.colDots - 1:
                 if self.cols[dotInd + 1][lineInd] and self.rows[lineInd][dotInd] and self.rows[lineInd+1][dotInd]:
                     pointEarned = 1
+                    self.boxes[lineInd][dotInd] = 1
 
         # add earned points to the correct player
         if self.player:
