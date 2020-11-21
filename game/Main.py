@@ -30,7 +30,7 @@ if __name__ == "__main__":
     greed = 1
 
     # number of rollouts to be performed
-    rollouts = 200
+    rollouts = 5000
 
     # flag to keep playing the game
     playing = True
@@ -50,7 +50,7 @@ if __name__ == "__main__":
             # check if that is a legal move
             if tempGame.addLine(direction, dotInd, lineInd):
                 # find where the new move would be in the tree
-                nextNode = root
+                nextNode = root.id
                 foundNextNode = False
                 for node in root.children:
                     if tree[node].newMove == move:
@@ -58,7 +58,16 @@ if __name__ == "__main__":
                         foundNextNode = True
 
                 if not foundNextNode:
-                    print("BIG OOPS")
+                    # if node not found, then create a new node in the tree for it
+                    (direction, dotInd, lineInd) = move
+                    newNode = DBNode.DBNode(
+                        tempGame, currentId, -1, move)
+                    newNode.board.addLine(direction, dotInd, lineInd)
+                    nextNode = newNode.id
+                    currentId += 1
+
+                    # add new node to the tree
+                    tree[newNode.id] = newNode
 
                 # check to see if finished the game
                 if tempGame.checkEnd():

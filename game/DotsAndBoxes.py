@@ -4,13 +4,13 @@ from pdb import set_trace as bp
 
 class DotsAndBoxes:
     def __init__(self):
-        # these values will describe how to setup rows/cols
-        # there are 7 rows of dots, each with 8 spaces
-        self.rowSpaces = 6
-        self.rowDots = 5
-        # there are 9 columns of dots, each with 6 spaces
-        self.colSpaces = 4
-        self.colDots = 7
+        # these values will describe how to setup rows/cols (currently outdated with testing)
+        # there are 5 rows of dots, each with 6 spaces
+        self.rowSpaces = 3
+        self.rowDots = 3
+        # there are 6 columns of dots, each with 4 spaces
+        self.colSpaces = 2
+        self.colDots = 4
 
         # rows describe all of the horizontal lines, 0 is empty, 1 is line
         self.rows = []
@@ -113,7 +113,7 @@ class DotsAndBoxes:
         if direction == 0:
             # check if there is a line above and then see if you can make a box
             if dotInd > 0:
-                if self.rows[dotInd - 1][lineInd] and self.cols[lineInd][dotInd-1] and self.cols[lineInd][dotInd-1]:
+                if self.rows[dotInd - 1][lineInd] and self.cols[lineInd][dotInd-1] and self.cols[lineInd + 1][dotInd-1]:
                     pointEarned = 1
             # check if there is a line bellow and then see if you can make a box
             if dotInd < self.rowDots - 1:
@@ -127,7 +127,7 @@ class DotsAndBoxes:
                     # check if there is a line to the right and then see if you can make a box
 
             if dotInd < self.colDots - 1:
-                if self.cols[dotInd - 1][lineInd] and self.rows[lineInd][dotInd] and self.rows[lineInd+1][dotInd]:
+                if self.cols[dotInd + 1][lineInd] and self.rows[lineInd][dotInd] and self.rows[lineInd+1][dotInd]:
                     pointEarned = 1
 
         # add earned points to the correct player

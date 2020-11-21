@@ -25,6 +25,9 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
 
     test = True
 
+    rands = 0
+    ucts = 0
+
     # get the root of the tree and increment ID counter
     root = tree[rootId]
     # BUG possible increment currentId here
@@ -44,8 +47,15 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
         # traverse to the end of the tree based on UCT
         while len(currentNode.children) != 0:
             depth += 1
-            nextNodeId = UCT(tree, currentNode)
-            currentNode = tree[nextNodeId]
+            # decide if UCT or randomSelect should be used
+            if random.random() / float(len(currentNode.board.moves) / 4) > 0.4:
+                nextNodeId = UCT(tree, currentNode)
+                currentNode = tree[nextNodeId]
+                ucts += 1
+            else:
+                nextNodeId = randomSelect(tree, currentNode)
+                currentNode = tree[nextNodeId]
+                rands += 1
 
         # first check if a node should have neighbours and if it does, then add them to children
         if not currentNode.board.checkEnd():
@@ -59,13 +69,14 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             if currentNode.board.P1Score > currentNode.board.P2Score:
                 reward = 1
             else:
-                reward = -1
+                reward = -2
 
             # old point system bellow
             # reward = currentNode.board.P1Score - currentNode.board.P2Score
 
-            # add greedyness to the reward
-            reward *= greed
+            # add greedyness to the reward TODO greed may not be applicable since static win v loss values
+            if reward > 0:
+                reward *= greed
 
             # back propogate the value up the tree and increase numRollouts
             backPropogation(tree, currentNode, reward, rootId, depth)
@@ -87,6 +98,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
 
     # find the best child of the root node and return the id
     bestNodeId = maxChild(tree, root)
+    print("rands:", rands, "ucts:", ucts)
     return bestNodeId, currentId
 
 
@@ -125,6 +137,19 @@ def UCT(tree, currentNode):
             maxUCT = testUCT
     # print("Found best")
     return bestId
+
+
+"""
+Randomly selects a child, replaces UCT at the beginning
+tree: dictionary with IDs as keys and their respectives nodes as the values
+currentNode: the ID of the current node
+Returns random child Id
+"""
+
+
+def randomSelect(tree, currentNode):
+    randomId = random.sample(currentNode.children, 1)
+    return randomId[0]
 
 
 """
@@ -178,11 +203,11 @@ def rollout(currentNode):
         tempNode.board.addLine(direction, dotInd, lineInd)
 
     # TODO check if this should just be static value for win vs loss
-    # if tempNode.board.P1Score - tempNode.board.P2Score > 0:
-    #     return 1
-    # else:
-    #     return -1
-    return tempNode.board.P1Score - tempNode.board.P2Score
+    if tempNode.board.P1Score - tempNode.board.P2Score > 0:
+        return 1
+    else:
+        return -2
+    # return tempNode.board.P1Score - tempNode.board.P2Score
 
 
 """
@@ -226,8 +251,11 @@ def maxChild(tree, currentNode):
     maxValue = -math.inf
     maxId = 0
 
+    print("total children:", len(currentNode.children))
+
     for child in currentNode.children:
-        print("Child", child, "visits", tree[child].visitCount)
+        print("Child", tree[child].newMove, "visits",
+              tree[child].visitCount, "reward:", tree[child].reward)
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
         winValue = tempNode.reward / tempNode.visitCount
