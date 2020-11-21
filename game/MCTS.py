@@ -72,7 +72,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
                 elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
                     reward = float(1)
                 else:
-                    reward = float(-15)
+                    reward = float(-2 * len(currentNode.board.moves))
 
             # if currentNode.board.player:
             #     reward += float(currentNode.board.P1Score - 2 *
@@ -218,7 +218,7 @@ def rollout(currentNode, depth):
     elif tempNode.board.P2Score - tempNode.board.P1Score > 0 and not currentNode.board.player:
         return float(1)
     else:
-        return float(-15)
+        return float(-1 * len(currentNode.board.moves))
 
     # if currentNode.board.player:
     #     return float(currentNode.board.P1Score - 2*currentNode.board.P2Score)/float(depth)
@@ -241,7 +241,7 @@ def backPropogation(tree, currentNode, reward, rootId, depth):
     # determine if AI is p1 or p2
     aiPlayer = tree[rootId].board.player
     # traverse back up the tree
-    while currentNode.id != rootId:
+    while currentNode.id == rootId:
         tree[currentNode.id].visitCount += 1
         if currentNode.board.player != aiPlayer:
             tree[currentNode.id].reward += reward
@@ -255,8 +255,10 @@ def backPropogation(tree, currentNode, reward, rootId, depth):
 
     # update the root's visit and reward values too
     tree[rootId].visitCount += 1
-    tree[rootId].reward += reward
-    tree
+    if tree[rootId].board.player != aiPlayer:
+        tree[rootId].reward += reward
+    else:
+        tree[rootId].reward -= reward
 
 
 """
