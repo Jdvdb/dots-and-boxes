@@ -241,7 +241,7 @@ def backPropogation(tree, currentNode, reward, rootId, depth):
     # determine if AI is p1 or p2
     aiPlayer = tree[rootId].board.player
     # traverse back up the tree
-    while currentNode.id == rootId:
+    while currentNode.id != rootId:
         tree[currentNode.id].visitCount += 1
         if currentNode.board.player != aiPlayer:
             tree[currentNode.id].reward += reward
@@ -255,7 +255,7 @@ def backPropogation(tree, currentNode, reward, rootId, depth):
 
     # update the root's visit and reward values too
     tree[rootId].visitCount += 1
-    if tree[rootId].board.player != aiPlayer:
+    if currentNode.board.player != tree[rootId].board.player:
         tree[rootId].reward += reward
     else:
         tree[rootId].reward -= reward
