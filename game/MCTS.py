@@ -14,12 +14,11 @@ tree: dictionary with IDs as keys and their respective nodes as the value
 currentId: the next ID value to be used in children creation
 rootId: ID of the root for this search
 rollouts: number of rollouts to be performed
-greed: determine how much the algorithm favours quick moves
 Returns the ID of the next move the AI will choose AND the value for currentId
 """
 
 
-def MCTS(tree, currentId, rootId, rollouts, greed):
+def MCTS(tree, currentId, rootId, rollouts):
     # generate random seed for simulations
     random.seed()
 
@@ -28,8 +27,14 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
     ucts = 0
     ends = 0
 
+    # tests
+    wlf = [0, 0, 0]
+
     # get the root of the tree and increment ID counter
     root = tree[rootId]
+
+    # total moves to decide how to traverse the tree
+    totalNodes = float(len(root.board.moves))
 
     # this is the node referenced when traversing the tree
     currentNode = root
@@ -40,21 +45,22 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
         # start currentNode at the root
         currentNode = tree[root.id]
 
-        # depth of the  tree before simulation
-        depth = 0
+        depth = 1.0
 
         # traverse to the end of the tree based on UCT
         while len(currentNode.children) != 0:
+            # if random.random() > 1.0/depth:
+            #     nextNodeId = randomSelect(tree, currentNode)
+            #     currentNode = tree[nextNodeId]
+            #     rands += 1
+            # else:
+            #     nextNodeId = greedySelect(tree, currentNode)
+            #     currentNode = tree[nextNodeId]
+            #     ucts += 1
+            nextNodeId = randomSelect(tree, currentNode)
+            currentNode = tree[nextNodeId]
+            rands += 1
             depth += 1
-            # decide if UCT or randomSelect should be used
-            if random.random() / float(len(currentNode.board.moves) / 4) > 0.4:
-                nextNodeId = UCT(tree, currentNode)
-                currentNode = tree[nextNodeId]
-                ucts += 1
-            else:
-                nextNodeId = randomSelect(tree, currentNode)
-                currentNode = tree[nextNodeId]
-                rands += 1
 
         # first check if a node should have neighbours and if it does, then add them to children
         if not currentNode.board.checkEnd():
@@ -66,7 +72,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             # the value that will be back propogated
             reward = 0
 
-            # the reward will be calculated as (p1score - p2score)/depth in the algorithm
+            # this will be the reward at the end of the tree
             if currentNode.board.P1Score - currentNode.board.P2Score > 0 and currentNode.board.player:
                 reward = float(1)
             elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
@@ -75,69 +81,25 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
                 reward = float(-1)
             ends += 1
 
-            # add greedyness to the reward TODO greed may not be applicable since static win v loss values
-            if reward > 0:
-                reward *= greed
-
-            # back propogate the value up the tree and increase numRollouts
-            backPropogation(tree, currentNode, reward, rootId, depth)
-            numRollouts += 1
-        # if children were found, then begin a rollout from a random position
+            # back propogate the value up the tree
+            backPropogation(tree, currentNode, reward, rootId)
+        # if children were found then begin a rollout from a random position
         else:
             randChild = random.choice(tuple(currentNode.children))
             currentNode = tree[randChild]
-            depth += 1
 
             # perform a rollout on the child and collect the reward
-            reward = rollout(currentNode)
-            # add greedyness to the reward if applicable
-            reward *= greed
+            reward = rollout(currentNode, wlf)
 
-            # back propogate the value up the tree and increase numRollouts
-            backPropogation(tree, currentNode, reward, rootId, depth)
-            numRollouts += 1
+            # back propogate the value up the tree
+            backPropogation(tree, currentNode, reward, rootId)
+        numRollouts += 1
 
     # find the best child of the root node and return the id
     bestNodeId = maxChild(tree, root)
     print("rands:", rands, "ucts:", ucts, "ends:", ends)
+    print("WLF", wlf)
     return bestNodeId, currentId
-
-
-"""
-Selects next node to explore based on Upper Confidence Bounds applied to Trees
-tree: dictionary with IDs as keys and their respectives nodes as the values
-currentNode: the ID of the current node
-Returns the ID of the next node to be explored
-"""
-
-
-def UCT(tree, currentNode):
-    # this is the value that will be returned
-    bestId = -1
-    # this will be the value for the most promising node
-    maxUCT = -math.inf
-    # this is the number of times the parent node was visited
-    parentSimulations = float(currentNode.visitCount)
-
-    # iterate through each child
-    # TODO: mess around with constants for good balance
-    for childId in currentNode.children:
-        # testNode is the node being investigated
-        testNode = tree[childId]
-
-        exploit = float(testNode.reward) / float(testNode.visitCount)
-        explore = 10*math.sqrt(math.log(parentSimulations) /
-                               float(testNode.visitCount))
-
-        # UCT is based on exploration and exploitation
-        testUCT = exploit + explore
-
-        if maxUCT < testUCT:
-            # print("new max:", explore, exploit, testUCT)
-            bestId = childId
-            maxUCT = testUCT
-    # print("Found best")
-    return bestId
 
 
 """
@@ -151,6 +113,26 @@ Returns random child Id
 def randomSelect(tree, currentNode):
     randomId = random.sample(currentNode.children, 1)
     return randomId[0]
+
+
+"""
+Greedily select next best child
+tree: dictionary with IDs as keys and their respectives nodes as the values
+currentNode: the ID of the current node
+Returns best child Id
+"""
+
+
+def greedySelect(tree, currentNode):
+    maxId = -1
+    maxValue = float('-inf')
+
+    for child in currentNode.children:
+        if float(tree[child].reward)/float(tree[child].visitCount) > maxValue:
+
+            maxValue = float(tree[child].reward)/float(tree[child].visitCount)
+            maxId = child
+    return maxId
 
 
 """
@@ -189,27 +171,29 @@ Returns a reward for the game
 """
 
 
-def rollout(currentNode):
+def rollout(currentNode, wlf):
     # node that will be used for simulation
     tempNode = copy.deepcopy(currentNode)
-    currentStreak = currentNode.board.player
-    streakLength = 0
-    while len(tempNode.board.moves) != 0:
+    while len(tempNode.board.moves) != 0 and tempNode.board.P2Score < 5:
         # select a random move available in the game
         play = random.choice(tuple(tempNode.board.moves))
         (direction, dotInd, lineInd) = play
         # this will return True if the game is done
         tempNode.board.addLine(direction, dotInd, lineInd)
 
-        # reward is determined by the # of moves in succession that are made
-        if tempNode.board.player == currentStreak and currentStreak != currentNode.board.player:
-            streakLength -= len(currentNode.board.moves)
-        elif tempNode.board.player == currentStreak and currentStreak == currentNode.board.player:
-            streakLength += 1/float(len(currentNode.board.moves))
-        else:
-            currentStreak = not currentStreak
-
-    return streakLength
+    # if len(tempNode.board.moves) != 0:
+    #     wlf[2] += 1
+    #     return -100**len(tempNode.board.moves)
+    # elif tempNode.board.P2Score > 4:
+    #     wlf[1] += 1
+    #     return -1.0
+    # else:
+    #     wlf[0] += 1
+    #     return 0
+    if tempNode.board.P1Score > 5:
+        return 1.0
+    else:
+        return 0.0
 
 
 """
@@ -222,18 +206,17 @@ No return
 """
 
 
-def backPropogation(tree, currentNode, reward, rootId, depth):
+def backPropogation(tree, currentNode, reward, rootId):
     # determine if AI is p1 or p2
     aiPlayer = tree[rootId].board.player
+    # reduce weight of win depending on how far from end game
+    depth = 1.0
     # traverse back up the tree
     while currentNode.id != rootId:
         tree[currentNode.id].visitCount += 1
-        if currentNode.board.player == aiPlayer:
-            tree[currentNode.id].reward += reward
-        else:
-            tree[currentNode.id].reward -= reward
+        tree[currentNode.id].reward += float(reward)/depth
 
-        # TODO modify how reward multiplier works based on player vs computer win
+        depth += 1.0
 
         # set the current node to the parent
         currentNode = tree[currentNode.parent]
@@ -253,7 +236,7 @@ Returns the ID of the next most promising game state
 
 def maxChild(tree, currentNode):
     # values for the max win score and the node's ID
-    maxValue = -math.inf
+    maxValue = float('-inf')
     maxId = 0
 
     print("total children:", len(currentNode.children))
@@ -262,14 +245,11 @@ def maxChild(tree, currentNode):
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
         winValue = float(tempNode.reward) / float(tempNode.visitCount)
-        print("Child", tree[child].newMove, "visits",
-              tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
+        # print("Child", tree[child].newMove, "visits",
+        #       tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
 
         if winValue > maxValue:
             maxValue = winValue
             maxId = child
-
-        # print("Move:", tempNode.newMove, "Win Value:",
-        #       winValue, "Visits:", tempNode.visitCount)
 
     return maxId

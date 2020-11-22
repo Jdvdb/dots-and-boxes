@@ -2,12 +2,18 @@
 import DBNode
 import DotsAndBoxes
 import MCTS
+import random
 from pdb import set_trace as bp
 
 
 def endGame(board):
     print("game done, work on this later...", board.boxes)
     quit()
+
+
+def randomMove(node):
+    randomId = random.sample(node.children, 1)
+    return randomId[0]
 
 
 # right now, assume computer plays first
@@ -40,45 +46,13 @@ if __name__ == "__main__":
 
     while playing:
         if not tempGame.player:
-            print('Pick a move')
-            move = input().split(" ")
-            for i in range(3):
-                move[i] = int(move[i])
+            nextNode = randomMove(root)
+            # check to see if finished the game
+            if tempGame.checkEnd():
+                endGame(tempGame)
 
-            move = tuple(move)
-            (direction, dotInd, lineInd) = move
-
-            # check if that is a legal move
-            if tempGame.addLine(direction, dotInd, lineInd):
-                # find where the new move would be in the tree
-                nextNode = root.id
-                foundNextNode = False
-                for node in root.children:
-                    if tree[node].newMove == move:
-                        nextNode = node
-                        foundNextNode = True
-
-                if not foundNextNode:
-                    # if node not found, then create a new node in the tree for it
-                    (direction, dotInd, lineInd) = move
-                    newNode = DBNode.DBNode(
-                        tempGame, currentId, -1, move)
-                    newNode.board.addLine(direction, dotInd, lineInd)
-                    nextNode = newNode.id
-                    currentId += 1
-
-                    # add new node to the tree
-                    tree[newNode.id] = newNode
-
-                # check to see if finished the game
-                if tempGame.checkEnd():
-                    endGame(tempGame)
-
-                # update the root for the computer
-                root = tree[nextNode]
-
-            else:
-                print("There is already a line there, try again")
+            # update the root for the computer
+            root = tree[nextNode]
 
         else:
             # this means computer turn
