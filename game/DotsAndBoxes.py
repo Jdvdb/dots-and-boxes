@@ -7,9 +7,9 @@ class DotsAndBoxes:
         # these values will describe how to setup rows/cols (currently outdated with testing)
         # there are 5 rows of dots, each with 6 spaces
         self.rowSpaces = 3
-        self.rowDots = 3
+        self.rowDots = 4
         # there are 6 columns of dots, each with 4 spaces
-        self.colSpaces = 2
+        self.colSpaces = 3
         self.colDots = 4
 
         # rows describe all of the horizontal lines, 0 is empty, 1 is line
@@ -126,24 +126,24 @@ class DotsAndBoxes:
             # check if there is a line above and then see if you can make a box
             if dotInd > 0:
                 if self.rows[dotInd - 1][lineInd] and self.cols[lineInd][dotInd-1] and self.cols[lineInd + 1][dotInd-1]:
-                    pointEarned = 1
+                    pointEarned += 1
                     self.boxes[dotInd - 1][lineInd] = 1
             # check if there is a line bellow and then see if you can make a box
             if dotInd < self.rowDots - 1:
                 if self.rows[dotInd + 1][lineInd] and self.cols[lineInd][dotInd] and self.cols[lineInd+1][dotInd]:
-                    pointEarned = 1
+                    pointEarned += 1
                     self.boxes[dotInd][lineInd] = 1
         else:
             if dotInd > 0:
                 # check if there is a line to the left and then see if you can make a box
                 if self.cols[dotInd - 1][lineInd] and self.rows[lineInd][dotInd-1] and self.rows[lineInd+1][dotInd-1]:
-                    pointEarned = 1
+                    pointEarned += 1
                     self.boxes[lineInd][dotInd - 1] = 1
 
             # check if there is a line to the right and then see if you can make a box
             if dotInd < self.colDots - 1:
                 if self.cols[dotInd + 1][lineInd] and self.rows[lineInd][dotInd] and self.rows[lineInd+1][dotInd]:
-                    pointEarned = 1
+                    pointEarned += 1
                     self.boxes[lineInd][dotInd] = 1
 
         # add earned points to the correct player
