@@ -30,7 +30,7 @@ if __name__ == "__main__":
     greed = 1
 
     # number of rollouts to be performed
-    rollouts = 800
+    rollouts = 1000
 
     # flag to keep playing the game
     playing = True

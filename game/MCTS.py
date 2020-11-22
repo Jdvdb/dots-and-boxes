@@ -26,6 +26,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
     # test values to tell how many UCT vs random searches are done
     rands = 0
     ucts = 0
+    ends = 0
 
     # get the root of the tree and increment ID counter
     root = tree[rootId]
@@ -71,17 +72,8 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
                 reward = float(1)
             else:
-                reward = float(-2 * len(currentNode.board.moves))
-
-            # if currentNode.board.player:
-            #     reward += float(currentNode.board.P1Score - 2 *
-            #                     currentNode.board.P2Score)/float(depth)
-            # elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
-            #     reward += float(currentNode.board.P2Score - 2 *
-            #                     currentNode.board.P1Score)/float(depth)
-
-            # old point system bellow
-            # reward = currentNode.board.P1Score - currentNode.board.P2Score
+                reward = float(-1)
+            ends += 1
 
             # add greedyness to the reward TODO greed may not be applicable since static win v loss values
             if reward > 0:
@@ -97,7 +89,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
             depth += 1
 
             # perform a rollout on the child and collect the reward
-            reward = rollout(currentNode, depth)
+            reward = rollout(currentNode)
             # add greedyness to the reward if applicable
             reward *= greed
 
@@ -107,7 +99,7 @@ def MCTS(tree, currentId, rootId, rollouts, greed):
 
     # find the best child of the root node and return the id
     bestNodeId = maxChild(tree, root)
-    print("rands:", rands, "ucts:", ucts)
+    print("rands:", rands, "ucts:", ucts, "ends:", ends)
     return bestNodeId, currentId
 
 
@@ -197,32 +189,27 @@ Returns a reward for the game
 """
 
 
-def rollout(currentNode, depth):
+def rollout(currentNode):
     # node that will be used for simulation
     tempNode = copy.deepcopy(currentNode)
-    i = 0
-
+    currentStreak = currentNode.board.player
+    streakLength = 0
     while len(tempNode.board.moves) != 0:
-        i += 1
-        # BUG: make sure tuple here does not change the set
         # select a random move available in the game
         play = random.choice(tuple(tempNode.board.moves))
         (direction, dotInd, lineInd) = play
         # this will return True if the game is done
         tempNode.board.addLine(direction, dotInd, lineInd)
 
-    # if the AI won, give it a small reward, otherwise tell it not to suck and lose
-    if tempNode.board.P1Score - tempNode.board.P2Score > 0 and currentNode.board.player:
-        return float(1)
-    elif tempNode.board.P2Score - tempNode.board.P1Score > 0 and not currentNode.board.player:
-        return float(1)
-    else:
-        return float(-1 * len(currentNode.board.moves))
+        # reward is determined by the # of moves in succession that are made
+        if tempNode.board.player == currentStreak and currentStreak != currentNode.board.player:
+            streakLength -= len(currentNode.board.moves)
+        elif tempNode.board.player == currentStreak and currentStreak == currentNode.board.player:
+            streakLength += 1/float(len(currentNode.board.moves))
+        else:
+            currentStreak = not currentStreak
 
-    # if currentNode.board.player:
-    #     return float(currentNode.board.P1Score - 2*currentNode.board.P2Score)/float(depth)
-    # elif not currentNode.board.player:
-    #     return float(currentNode.board.P2Score - 2*currentNode.board.P1Score)/float(depth)
+    return streakLength
 
 
 """
@@ -231,7 +218,6 @@ tree: dictionary with IDs as keys and their respectives nodes as the values
 currentNode: the ID of the current node
 reward: the reward found from the rollout at currentNode
 rootId: the ID of the root node in this simulation
-depth: the current depth of the node in the tree
 No return
 """
 
@@ -254,10 +240,7 @@ def backPropogation(tree, currentNode, reward, rootId, depth):
 
     # update the root's visit and reward values too
     tree[rootId].visitCount += 1
-    if currentNode.board.player == tree[rootId].board.player:
-        tree[rootId].reward += reward
-    else:
-        tree[rootId].reward -= reward
+    tree[rootId].reward += reward
 
 
 """
