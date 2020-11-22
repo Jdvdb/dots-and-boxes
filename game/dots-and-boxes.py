@@ -8,7 +8,6 @@ import copy
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-GREEN = (0, 255, 0)
 
 WIDTH = 800
 HEIGHT = 600
@@ -35,7 +34,7 @@ def setup(screen):
     pygame.draw.rect(screen, WHITE, (WIDTH/2 - GAME_WIDTH/2 + 15,
                                      HEIGHT/2 - GAME_HEIGHT/2 + 5, GAME_WIDTH - 10,  GAME_HEIGHT - 10))
 
-    text = font.render('Dots and Boxes', True, GREEN, BLACK)
+    text = font.render('Dots and Boxes', True, BLACK, WHITE)
     text_rect = text.get_rect()
     text_rect.center = (WIDTH/2, 20)
 
@@ -43,15 +42,28 @@ def setup(screen):
 
     font = pygame.font.Font(constants.title, 25)
     
-    text = font.render('Player: P', True, GREEN, BLACK)
+    text = font.render('Player: 0', True, BLACK, WHITE)
     text_rect = text.get_rect()
-    text_rect.center = (WIDTH-47, 10)
+    text_rect.center = (WIDTH-49, 10)
     screen.blit(text, text_rect)
     
     
-    text = font.render('Computer: Q', True, GREEN, BLACK)
+    text = font.render('Computer: 0', True, BLACK, WHITE)
     text_rect = text.get_rect()
     text_rect.center = (WIDTH-70, 40)
+    screen.blit(text, text_rect)
+    
+    pygame.display.update()
+    
+    text = font.render('Playing Now: ', True, BLACK, WHITE)
+    text_rect = text.get_rect()
+    text_rect.center = (100, 10)
+    screen.blit(text, text_rect)
+    
+    
+    text = font.render('Computer', True, BLACK, WHITE)
+    text_rect = text.get_rect()
+    text_rect.center = (100, 40)
     screen.blit(text, text_rect)
     
     pygame.display.update()
@@ -75,14 +87,7 @@ def setup(screen):
         for i in range(-(rows-rows//2), rows-rows//2):
             for j in range(-(cols-cols//2), cols-cols//2):
                 pygame.draw.circle(screen, BLACK, (DOT_CENTER_WIDTH + ((2*i+1)*DOT_SPACING//2), DOT_CENTER_HEIGHT + ((2*j+1)*DOT_SPACING//2)), DOT_RADIUS)
-    
-    
-    
-    
-    
-    
-    
-    
+
 
 def main():
     # initialize pygame and create the screen
@@ -155,6 +160,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+        
         pygame.display.update()
         
         if not tempGame.player:
@@ -247,19 +253,34 @@ def main():
         #score
         font = pygame.font.Font(constants.title, 25)
         
-        text = font.render('Player: %d'%tempGame.P2Score, True, GREEN, BLACK)
+        text = font.render('Player: %d'%tempGame.P2Score, True, BLACK, WHITE)
         text_rect = text.get_rect()
         text_rect.center = (WIDTH-47, 10)
         screen.blit(text, text_rect)
         
         
-        text = font.render('Computer: %d'%tempGame.P1Score, True, GREEN, BLACK)
+        text = font.render('Computer: %d'%tempGame.P1Score, True, BLACK, WHITE)
         text_rect = text.get_rect()
         text_rect.center = (WIDTH-70, 40)
         screen.blit(text, text_rect)
         
-        pygame.display.update()
         
+        pygame.draw.rect(screen, WHITE, (0,0,200,50))
+        text = font.render('Playing Now: ', True, BLACK, WHITE)
+        text_rect = text.get_rect()
+        text_rect.center = (100, 10)
+        screen.blit(text, text_rect)
+        
+        if tempGame.player:
+            text = font.render('Computer', True, BLACK, WHITE)
+        else:
+            pygame.draw.rect
+            text = font.render('Player', True, BLACK, WHITE)
+        text_rect = text.get_rect()
+        text_rect.center = (100, 40)
+        screen.blit(text, text_rect)
+        
+        pygame.display.update()
         
         pygame.display.update()
         #beginning of border/box displaying in pyGame
