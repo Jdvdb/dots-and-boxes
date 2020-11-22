@@ -97,8 +97,8 @@ def MCTS(tree, currentId, rootId, rollouts):
 
     # find the best child of the root node and return the id
     bestNodeId = maxChild(tree, root)
-    print("rands:", rands, "ucts:", ucts, "ends:", ends)
-    print("WLF", wlf)
+    # print("rands:", rands, "ucts:", ucts, "ends:", ends)
+    # print("WLF", wlf)
     return bestNodeId, currentId
 
 
@@ -174,26 +174,66 @@ Returns a reward for the game
 def rollout(currentNode, wlf):
     # node that will be used for simulation
     tempNode = copy.deepcopy(currentNode)
-    while len(tempNode.board.moves) != 0 and tempNode.board.P2Score < 5:
+    multiplier = 1.0 * tempNode.board.P2Score
+    p2Streak = not tempNode.board.player
+    while len(tempNode.board.moves) != 0:
         # select a random move available in the game
         play = random.choice(tuple(tempNode.board.moves))
         (direction, dotInd, lineInd) = play
         # this will return True if the game is done
         tempNode.board.addLine(direction, dotInd, lineInd)
 
-    # if len(tempNode.board.moves) != 0:
-    #     wlf[2] += 1
-    #     return -100**len(tempNode.board.moves)
-    # elif tempNode.board.P2Score > 4:
-    #     wlf[1] += 1
-    #     return -1.0
-    # else:
-    #     wlf[0] += 1
-    #     return 0
-    if tempNode.board.P1Score > 5:
+        if p2Streak and not tempNode.board.player:
+            multiplier *= 2.0
+            # multiplier *= float(len(tempNode.board.moves)) * \
+            #     float(tempNode.board.P2Score - tempNode.board.P1Score)
+        if not tempNode.board.player:
+            p2Streak = True
+        else:
+            p2Streak = False
+
+    if (tempNode.board.P1Score > tempNode.board.P2Score):
         return 1.0
     else:
-        return 0.0
+        return -1.0 * multiplier
+
+# def rollout(currentNode, wlf):
+#     # node that will be used for simulation
+#     tempNode = copy.deepcopy(currentNode)
+#     p2Max = 2.0
+#     p1Max = 1.5
+#     p1Temp = 1.5
+#     p2Temp = 2.0
+#     p2Streak = not tempNode.board.player
+#     p1Streak = tempNode.board.player
+#     while len(tempNode.board.moves) != 0:
+#         # select a random move available in the game
+#         play = random.choice(tuple(tempNode.board.moves))
+#         (direction, dotInd, lineInd) = play
+#         # this will return True if the game is done
+#         tempNode.board.addLine(direction, dotInd, lineInd)
+
+#         if p2Streak and not tempNode.board.player:
+#             p2Temp *= 2.0
+#             if p2Temp > p2Max:
+#                 p2Max = p2Temp
+#             p1Temp = 1.5
+#         elif p1Streak and tempNode.board.player:
+#             p1Temp *= 1.5
+#             if p1Temp > p1Max:
+#                 p1Max = p1Temp
+#             p2Temp = 2.0
+#         if not tempNode.board.player:
+#             p2Streak = True
+#             p1Streak = False
+#         else:
+#             p2Streak = False
+#             p1Streak = True
+
+#     if (tempNode.board.P1Score > tempNode.board.P2Score):
+#         return 1.0 * p1Max
+#     else:
+#         return -1.0 * p2Max
 
 
 """
@@ -209,14 +249,10 @@ No return
 def backPropogation(tree, currentNode, reward, rootId):
     # determine if AI is p1 or p2
     aiPlayer = tree[rootId].board.player
-    # reduce weight of win depending on how far from end game
-    depth = 1.0
     # traverse back up the tree
     while currentNode.id != rootId:
         tree[currentNode.id].visitCount += 1
-        tree[currentNode.id].reward += float(reward)/depth
-
-        depth += 1.0
+        tree[currentNode.id].reward += float(reward)
 
         # set the current node to the parent
         currentNode = tree[currentNode.parent]
@@ -245,8 +281,8 @@ def maxChild(tree, currentNode):
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
         winValue = float(tempNode.reward) / float(tempNode.visitCount)
-        # print("Child", tree[child].newMove, "visits",
-        #       tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
+        print("Child", tree[child].newMove, "visits",
+              tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
 
         if winValue > maxValue:
             maxValue = winValue

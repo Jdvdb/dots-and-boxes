@@ -1,3 +1,0 @@
-play game
-Computer is thinking...
-0 set()

@@ -123,11 +123,10 @@ def main():
     greed = 1
 
     # number of rollouts to be performed
-    rollouts = 5000
+    rollouts = 10000
 
     # flag to keep playing the game
     playing = True
-
     # array of display Rects
     row_borders = copy.deepcopy(tempGame.rows)
     col_borders = copy.deepcopy(tempGame.cols)

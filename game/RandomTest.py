@@ -6,20 +6,66 @@ import random
 from pdb import set_trace as bp
 
 
-def endGame(board):
-    print("game done, work on this later...", board.boxes)
-    quit()
-
-
 def randomMove(node):
     randomId = random.sample(node.children, 1)
     return randomId[0]
 
 
-# right now, assume computer plays first
-if __name__ == "__main__":
-    # all of this is test stuff right now
-    print('loading')
+def getTestData():
+    # number of games played
+    games = 100.0
+    gamesPlayed = 0.0
+
+    # number of MCTS wins
+    MCTSWin = 0.0
+    # number of random wins
+    RandomWin = 0.0
+
+    # total score for MCTS and Random
+    scores = [0.0, 0.0]
+
+    # number of rollouts for sim
+    rollouts = 100
+
+    print("TEST INFO:")
+    print("Games to be played:", int(games))
+    print("Simulations:", rollouts, "per turn")
+    print()
+    print("-----------------")
+    print()
+    print("Game Results:")
+    print()
+
+    while gamesPlayed < games:
+        print("Game", int(gamesPlayed))
+        tempScores = playGame(rollouts)
+
+        scores[0] += tempScores[0]
+        scores[1] += tempScores[1]
+
+        if scores[0] > scores[1]:
+            MCTSWin += 1.0
+        else:
+            RandomWin += 1.0
+        print("P1:", tempScores[0], "P2:", tempScores[1])
+        print()
+
+        gamesPlayed += 1.0
+    print("-----------------")
+    print()
+    print(games, "games finished.")
+    print("MCTS WINS:", MCTSWin)
+    print("RANDOM WINS:", RandomWin)
+    print()
+    print("AVG. MCTS SCORE:", scores[0] / games)
+    print("AVG. RANDOM SCORES:", scores[1] / games)
+    print()
+    print("MCTS WIN RATIO:", MCTSWin / games)
+    print("RANDOM WIN RATIO", RandomWin / games)
+
+
+def playGame(totalRollouts):
+    # temp game for the simulation
     tempGame = DotsAndBoxes.DotsAndBoxes()
 
     # value for creating IDs
@@ -33,46 +79,27 @@ if __name__ == "__main__":
     tree = dict()
     tree[root.id] = root
 
-    # number of rollouts to be performed
-    rollouts = 2000
-
-    # flag to keep playing the game
-    playing = True
-
-    # TODO if player ever goes first, add a flag and special method for firstMove
-
     nextComputerId, currentId = MCTS.MCTS(
-        tree, currentId, root.id, rollouts)
+        tree, currentId, root.id, totalRollouts)
 
-    while playing:
+    while True:
         if not tempGame.player:
             nextNode = randomMove(root)
-            # check to see if finished the game
-            if tempGame.checkEnd():
-                endGame(tempGame)
 
             # update the root for the computer
             root = tree[nextNode]
 
         else:
-            # this means computer turn
-            print("Computer is thinking...")
-
             nextComputerId, currentId = MCTS.MCTS(
-                tree, currentId, root.id, rollouts)
+                tree, currentId, root.id, totalRollouts)
 
             # update the root
             root = tree[nextComputerId]
 
-            if root.board.checkEnd():
-                endGame(root.board)
+        if root.board.checkEnd():
+            return (root.board.P1Score, root.board.P2Score)
 
-        # stats to read after each move
-        print("tree size:", len(tree))
-        print("last move:", root.newMove)
-        tempGame = root.board
-        tempGame.printBoard()
-        if root.board.player:
-            print("next player: AI")
-        else:
-            print("next player: human")
+
+# right now, assume computer plays first
+if __name__ == "__main__":
+    getTestData()
