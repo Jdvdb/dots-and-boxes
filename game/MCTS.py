@@ -22,11 +22,6 @@ def MCTS(tree, currentId, rootId, rollouts):
     # generate random seed for simulations
     random.seed()
 
-    # test values to tell how many UCT vs random searches are done
-    rands = 0
-    ucts = 0
-    ends = 0
-
     # tests
     wlf = [0, 0, 0]
 
@@ -45,22 +40,10 @@ def MCTS(tree, currentId, rootId, rollouts):
         # start currentNode at the root
         currentNode = tree[root.id]
 
-        depth = 1.0
-
         # traverse to the end of the tree based on UCT
         while len(currentNode.children) != 0:
-            # if random.random() > 1.0/depth:
-            #     nextNodeId = randomSelect(tree, currentNode)
-            #     currentNode = tree[nextNodeId]
-            #     rands += 1
-            # else:
-            #     nextNodeId = greedySelect(tree, currentNode)
-            #     currentNode = tree[nextNodeId]
-            #     ucts += 1
             nextNodeId = randomSelect(tree, currentNode)
             currentNode = tree[nextNodeId]
-            rands += 1
-            depth += 1
 
         # first check if a node should have neighbours and if it does, then add them to children
         if not currentNode.board.checkEnd():
@@ -79,7 +62,6 @@ def MCTS(tree, currentId, rootId, rollouts):
                 reward = float(1)
             else:
                 reward = float(-1)
-            ends += 1
 
             # back propogate the value up the tree
             backPropogation(tree, currentNode, reward, rootId)
@@ -97,13 +79,11 @@ def MCTS(tree, currentId, rootId, rollouts):
 
     # find the best child of the root node and return the id
     bestNodeId = maxChild(tree, root)
-    # print("rands:", rands, "ucts:", ucts, "ends:", ends)
-    # print("WLF", wlf)
     return bestNodeId, currentId
 
 
 """
-Randomly selects a child, replaces UCT at the beginning
+Randomly selects a child during the selection phase
 tree: dictionary with IDs as keys and their respectives nodes as the values
 currentNode: the ID of the current node
 Returns random child Id
@@ -184,7 +164,7 @@ def rollout(currentNode, wlf):
         tempNode.board.addLine(direction, dotInd, lineInd)
 
         if p2Streak and not tempNode.board.player:
-            multiplier *= 2.0
+            multiplier *= 2.5
             # multiplier *= float(len(tempNode.board.moves)) * \
             #     float(tempNode.board.P2Score - tempNode.board.P1Score)
         if not tempNode.board.player:
@@ -193,47 +173,9 @@ def rollout(currentNode, wlf):
             p2Streak = False
 
     if (tempNode.board.P1Score > tempNode.board.P2Score):
-        return 1.0
+        return 0.5
     else:
         return -1.0 * multiplier
-
-# def rollout(currentNode, wlf):
-#     # node that will be used for simulation
-#     tempNode = copy.deepcopy(currentNode)
-#     p2Max = 2.0
-#     p1Max = 1.5
-#     p1Temp = 1.5
-#     p2Temp = 2.0
-#     p2Streak = not tempNode.board.player
-#     p1Streak = tempNode.board.player
-#     while len(tempNode.board.moves) != 0:
-#         # select a random move available in the game
-#         play = random.choice(tuple(tempNode.board.moves))
-#         (direction, dotInd, lineInd) = play
-#         # this will return True if the game is done
-#         tempNode.board.addLine(direction, dotInd, lineInd)
-
-#         if p2Streak and not tempNode.board.player:
-#             p2Temp *= 2.0
-#             if p2Temp > p2Max:
-#                 p2Max = p2Temp
-#             p1Temp = 1.5
-#         elif p1Streak and tempNode.board.player:
-#             p1Temp *= 1.5
-#             if p1Temp > p1Max:
-#                 p1Max = p1Temp
-#             p2Temp = 2.0
-#         if not tempNode.board.player:
-#             p2Streak = True
-#             p1Streak = False
-#         else:
-#             p2Streak = False
-#             p1Streak = True
-
-#     if (tempNode.board.P1Score > tempNode.board.P2Score):
-#         return 1.0 * p1Max
-#     else:
-#         return -1.0 * p2Max
 
 
 """
@@ -275,14 +217,14 @@ def maxChild(tree, currentNode):
     maxValue = float('-inf')
     maxId = 0
 
-    print("total children:", len(currentNode.children))
+    # print("total children:", len(currentNode.children))
 
     for child in currentNode.children:
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
         winValue = float(tempNode.reward) / float(tempNode.visitCount)
-        print("Child", tree[child].newMove, "visits",
-              tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
+        # print("Child", tree[child].newMove, "visits",
+        #       tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
 
         if winValue > maxValue:
             maxValue = winValue

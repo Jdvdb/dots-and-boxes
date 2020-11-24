@@ -18,9 +18,18 @@ DOT_SPACING = 100
 DOT_CENTER_HEIGHT = 300
 DOT_CENTER_WIDTH = 400
 
+# NOTE: This is a value you can modify to give the computer more/less time to think, 1 is standard
+BRAIN_POWER = 1.8
+
 
 def endGame(board):
-    print("game done, work on this later...", board.boxes)
+    print("Game Over!")
+    print("AI Score:", board.P1Score)
+    print("Human Score", board.P2Score)
+    if board.P1Score > board.P2Score:
+        print("AI Won!")
+    else:
+        print("Human Won!")
     quit()
 
 
@@ -123,7 +132,7 @@ def main():
     greed = 1
 
     # number of rollouts to be performed
-    rollouts = 10000
+    rollouts = 1800
 
     # flag to keep playing the game
     playing = True
@@ -220,10 +229,6 @@ def main():
                                     # add new node to the tree
                                     tree[newNode.id] = newNode
 
-                                # check to see if finished the game
-                                if tempGame.checkEnd():
-                                    endGame(tempGame)
-
                                 # update the root for the computer
                                 root = tree[nextNode]
 
@@ -231,9 +236,17 @@ def main():
                                 print("There is already a line there, try again")
 
         else:
-            # this means computer turn
-            print("Computer is thinking...")
-
+            # determine how many rollouts should be done based on depth into game
+            if len(root.board.moves) < 12:
+                rollouts = 24000
+            elif len(root.board.moves) < 16:
+                rollouts = 18000
+            elif len(root.board.moves) < 22:
+                rollouts = 7500
+            else:
+                rollouts = 3000
+            # modify the number of rollouts by the power given by the user
+            rollouts *= BRAIN_POWER
             nextComputerId, currentId = MCTS.MCTS(
                 tree, currentId, root.id, rollouts)
 
@@ -241,6 +254,10 @@ def main():
             root = tree[nextComputerId]
 
         tempGame = root.board
+
+        # end the game if it is done
+        if tempGame.checkEnd():
+            endGame(tempGame)
 
         (direction, i, j) = root.newMove
 
@@ -290,7 +307,6 @@ def main():
 
         pygame.display.update()
         # beginning of border/box displaying in pyGame
-
 
         # end of border/box displaying in pyGame
 if __name__ == "__main__":
