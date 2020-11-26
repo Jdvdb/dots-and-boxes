@@ -24,9 +24,6 @@ def getTestData():
     # total score for MCTS and Random
     scores = [0.0, 0.0]
 
-    # number of rollouts for sim
-    rollouts = 100
-
     # value that would be used to manipulate how long thinking is
     brainPower = 0.1
 
@@ -48,7 +45,7 @@ def getTestData():
 
     while gamesPlayed < games:
         print("Game", int(gamesPlayed))
-        tempScores = playGame(rollouts)
+        tempScores = playGame(brainPower)
 
         scores[0] += tempScores[0]
         scores[1] += tempScores[1]
@@ -74,7 +71,7 @@ def getTestData():
     print("RANDOM WIN RATIO", RandomWin / games)
 
 
-def playGame(totalRollouts):
+def playGame(brainPower):
     # temp game for the simulation
     tempGame = DotsAndBoxes.DotsAndBoxes()
 
@@ -88,9 +85,6 @@ def playGame(totalRollouts):
     # dictionary that will act as the game tree
     tree = dict()
     tree[root.id] = root
-
-    nextComputerId, currentId = MCTS.MCTS(
-        tree, currentId, root.id, totalRollouts)
 
     while True:
         if not tempGame.player:
@@ -108,6 +102,7 @@ def playGame(totalRollouts):
                 rollouts = 7500
             else:
                 rollouts = 3000
+            rollouts *= brainPower
             nextComputerId, currentId = MCTS.MCTS(
                 tree, currentId, root.id, rollouts)
             nextComputerId, currentId = MCTS.MCTS(

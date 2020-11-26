@@ -57,9 +57,9 @@ def MCTS(tree, currentId, rootId, rollouts):
 
             # this will be the reward at the end of the tree
             if currentNode.board.P1Score - currentNode.board.P2Score > 0:
-                reward = 2.5
+                reward = 0.0
             else:
-                reward = -1.0 * 2.0 ** currentNode.board.P2Score
+                reward = -1.0 * 1.8 ** currentNode.board.P2Score
 
             # back propogate the value up the tree
             backPropogation(tree, currentNode, reward, rootId)
@@ -176,17 +176,24 @@ Returns a reward for the game
 def rollout(currentNode, wlf):
     # node that will be used for simulation
     tempNode = copy.deepcopy(currentNode)
+    # will make values much worse if there is a mess up close to the start
+    badMove = 1.0
+    badSeen = False
     while tempNode.board.P1Score < 5 and tempNode.board.P2Score < 5:
         # select a random move available in the game
         play = random.choice(tuple(tempNode.board.moves))
         (direction, dotInd, lineInd) = play
         # this will return True if the game is done
         tempNode.board.addLine(direction, dotInd, lineInd)
+        if currentNode.board.P2Score > currentNode.board.P2Score and not badSeen:
+            badSeen = True
+            badMove = -150.0 / float(len(currentNode.board.moves) -
+                                     len(tempNode.board.moves))
 
     if (tempNode.board.P1Score > tempNode.board.P2Score):
-        return 0.0
+        return badMove
     else:
-        return -1.0 * 1.5 ** len(tempNode.board.moves)
+        return -1.0 * len(tempNode.board.moves) + badMove
 
 
 """
@@ -234,8 +241,8 @@ def maxChild(tree, currentNode):
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
         winValue = float(tempNode.reward) / float(tempNode.visitCount)
-        print("Child", tree[child].newMove, "visits",
-              tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
+        # print("Child", tree[child].newMove, "visits",
+        #       tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
 
         if winValue > maxValue:
             maxValue = winValue

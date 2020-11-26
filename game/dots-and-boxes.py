@@ -233,13 +233,13 @@ def main():
         else:
             # determine how many rollouts should be done based on depth into game
             if len(root.board.moves) < 12:
-                rollouts = 12500
+                rollouts = 13000
             elif len(root.board.moves) < 16:
-                rollouts = 10000
+                rollouts = 11000
             elif len(root.board.moves) < 22:
-                rollouts = 7500
+                rollouts = 8000
             else:
-                rollouts = 3000
+                rollouts = 3500
             # modify the number of rollouts by the power given by the user
             rollouts *= BRAIN_POWER
             nextComputerId, currentId = MCTS.MCTS(

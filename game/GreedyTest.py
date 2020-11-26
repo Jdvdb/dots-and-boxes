@@ -44,13 +44,13 @@ def getTestData():
     print("TEST INFO:")
     print("Games to be played:", int(games))
     print("Brain Power Given:", brainPower)
-    print("Rollouts while lines remaining is greater than 22:", int(brainPower*3000))
+    print("Rollouts while lines remaining is greater than 22:", int(brainPower*3500))
     print("Rollouts while lines remaining is greater than 16 and less than or equal to 22:", int(
-        brainPower*7500))
+        brainPower*8000))
     print("Rollouts while lines remaining is greater than 12 and less than or equal to 16:", int(
-        brainPower*10000))
+        brainPower*11000))
     print("Rollouts while lines remaining is greater than 0 and less than or equal to 12:", int(
-        brainPower*12500))
+        brainPower*13000))
     print()
     print("-----------------")
     print()
@@ -129,13 +129,14 @@ def playGame(brainPower):
 
         else:
             if len(root.board.moves) < 12:
-                rollouts = 12500
+                rollouts = 13000
             elif len(root.board.moves) < 16:
-                rollouts = 10000
+                rollouts = 11000
             elif len(root.board.moves) < 22:
-                rollouts = 7500
+                rollouts = 8000
             else:
-                rollouts = 3000
+                rollouts = 3500
+            rollouts *= brainPower
             nextComputerId, currentId = MCTS.MCTS(
                 tree, currentId, root.id, rollouts)
 
