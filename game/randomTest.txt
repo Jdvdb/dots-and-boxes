@@ -1,0 +1,53 @@
+TEST INFO:
+Games to be played: 10
+Brain Power Given: 0.1
+Rollouts while lines remaining is greater than 22: 300
+Rollouts while lines remaining is greater than 16 and less than or equal to 22: 750
+Rollouts while lines remaining is greater than 12 and less than or equal to 16: 1000
+Rollouts while lines remaining is greater than 0 and less than or equal to 12: 1250
+
+-----------------
+
+Game Results:
+
+Game 0
+P1: 9 P2: 0
+
+Game 1
+P1: 9 P2: 0
+
+Game 2
+P1: 9 P2: 0
+
+Game 3
+P1: 8 P2: 1
+
+Game 4
+P1: 9 P2: 0
+
+Game 5
+P1: 9 P2: 0
+
+Game 6
+P1: 5 P2: 4
+
+Game 7
+P1: 5 P2: 4
+
+Game 8
+P1: 9 P2: 0
+
+Game 9
+P1: 8 P2: 1
+
+-----------------
+
+10.0 games finished.
+MCTS WINS: 10.0
+RANDOM WINS: 0.0
+
+AVG. MCTS SCORE: 8.0
+AVG. RANDOM SCORES: 1.0
+
+MCTS WIN RATIO: 1.0
+RANDOM WIN RATIO 0.0

@@ -19,7 +19,7 @@ DOT_CENTER_HEIGHT = 300
 DOT_CENTER_WIDTH = 400
 
 # NOTE: This is a value you can modify to give the computer more/less time to think, 1 is standard
-BRAIN_POWER = 0.75
+BRAIN_POWER = 1
 
 
 def endGame(board):

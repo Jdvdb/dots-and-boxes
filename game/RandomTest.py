@@ -13,7 +13,7 @@ def randomMove(node):
 
 def getTestData():
     # number of games played
-    games = 10.0
+    games = 100.0
     gamesPlayed = 0.0
 
     # number of MCTS wins
@@ -106,7 +106,7 @@ def playGame(brainPower):
             nextComputerId, currentId = MCTS.MCTS(
                 tree, currentId, root.id, rollouts)
             nextComputerId, currentId = MCTS.MCTS(
-                tree, currentId, root.id, totalRollouts)
+                tree, currentId, root.id, rollouts)
 
             # update the root
             root = tree[nextComputerId]
