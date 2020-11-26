@@ -179,6 +179,11 @@ def rollout(currentNode, wlf):
     # will make values much worse if there is a mess up close to the start
     badMove = 1.0
     badSeen = False
+    # if this is a losing branch, then make it known
+    losingBranch = 0.0
+    if currentNode.board.P1Score < currentNode.board.P2Score:
+        losingBranch = 15.0 ** (currentNode.board.P2Score -
+                                currentNode.board.P1Score)
     while tempNode.board.P1Score < 5 and tempNode.board.P2Score < 5:
         # select a random move available in the game
         play = random.choice(tuple(tempNode.board.moves))
@@ -187,13 +192,13 @@ def rollout(currentNode, wlf):
         tempNode.board.addLine(direction, dotInd, lineInd)
         if currentNode.board.P2Score > currentNode.board.P2Score and not badSeen:
             badSeen = True
-            badMove = -150.0 / float(len(currentNode.board.moves) -
-                                     len(tempNode.board.moves))
+            badMove = -10000.0 / float(len(currentNode.board.moves) -
+                                       len(tempNode.board.moves))
 
     if (tempNode.board.P1Score > tempNode.board.P2Score):
-        return badMove
+        return 3.0
     else:
-        return -1.0 * len(tempNode.board.moves) + badMove
+        return -1.0 * len(tempNode.board.moves) + badMove - losingBranch
 
 
 """
