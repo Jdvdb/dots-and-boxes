@@ -57,9 +57,9 @@ def MCTS(tree, currentId, rootId, rollouts):
 
             # this will be the reward at the end of the tree
             if currentNode.board.P1Score - currentNode.board.P2Score > 0:
-                reward = 0.5
+                reward = 2.5
             else:
-                reward = -2.0**currentNode.board.P2Score
+                reward = -1.0 * 2.0 ** currentNode.board.P2Score
 
             # back propogate the value up the tree
             backPropogation(tree, currentNode, reward, rootId)
@@ -149,29 +149,44 @@ Returns a reward for the game
 """
 
 
+# def rollout(currentNode, wlf):
+#     # node that will be used for simulation
+#     tempNode = copy.deepcopy(currentNode)
+#     multiplier = 1.0 + 2.0*tempNode.board.P2Score
+#     p2Streak = not tempNode.board.player
+#     while len(tempNode.board.moves) != 0:
+#         # select a random move available in the game
+#         play = random.choice(tuple(tempNode.board.moves))
+#         (direction, dotInd, lineInd) = play
+#         # this will return True if the game is done
+#         tempNode.board.addLine(direction, dotInd, lineInd)
+
+#         if p2Streak and not tempNode.board.player:
+#             multiplier *= 2 * (float(len(currentNode.board.moves)) / 24.0)
+#         if not tempNode.board.player:
+#             p2Streak = True
+#         else:
+#             p2Streak = False
+
+#     if (tempNode.board.P1Score > tempNode.board.P2Score):
+#         return 1.0
+#     else:
+#         return -1.0 * multiplier
+
 def rollout(currentNode, wlf):
     # node that will be used for simulation
     tempNode = copy.deepcopy(currentNode)
-    multiplier = 1.0 * tempNode.board.P2Score
-    p2Streak = not tempNode.board.player
-    while len(tempNode.board.moves) != 0:
+    while tempNode.board.P1Score < 5 and tempNode.board.P2Score < 5:
         # select a random move available in the game
         play = random.choice(tuple(tempNode.board.moves))
         (direction, dotInd, lineInd) = play
         # this will return True if the game is done
         tempNode.board.addLine(direction, dotInd, lineInd)
 
-        if p2Streak and not tempNode.board.player:
-            multiplier *= 2.5
-        if not tempNode.board.player:
-            p2Streak = True
-        else:
-            p2Streak = False
-
     if (tempNode.board.P1Score > tempNode.board.P2Score):
-        return 0.5
+        return 0.0
     else:
-        return -1.0 * multiplier
+        return -1.0 * 1.5 ** len(tempNode.board.moves)
 
 
 """
@@ -219,8 +234,8 @@ def maxChild(tree, currentNode):
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
         winValue = float(tempNode.reward) / float(tempNode.visitCount)
-        # print("Child", tree[child].newMove, "visits",
-        #       tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
+        print("Child", tree[child].newMove, "visits",
+              tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
 
         if winValue > maxValue:
             maxValue = winValue

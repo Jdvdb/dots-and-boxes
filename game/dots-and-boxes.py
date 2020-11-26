@@ -19,7 +19,7 @@ DOT_CENTER_HEIGHT = 300
 DOT_CENTER_WIDTH = 400
 
 # NOTE: This is a value you can modify to give the computer more/less time to think, 1 is standard
-BRAIN_POWER = 1.8
+BRAIN_POWER = 0.75
 
 
 def endGame(board):
@@ -128,9 +128,6 @@ def main():
     tree = dict()
     tree[root.id] = root
 
-    # greed value to be used in MCTS
-    greed = 1
-
     # number of rollouts to be performed
     rollouts = 1800
 
@@ -180,8 +177,6 @@ def main():
             move = None
 
             while move == None:
-                # nextComputerId, currentId = MCTS.MCTS(
-                #     tree, currentId, root.id, 100)
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         pos = pygame.mouse.get_pos()
@@ -238,9 +233,9 @@ def main():
         else:
             # determine how many rollouts should be done based on depth into game
             if len(root.board.moves) < 12:
-                rollouts = 24000
+                rollouts = 12500
             elif len(root.board.moves) < 16:
-                rollouts = 18000
+                rollouts = 10000
             elif len(root.board.moves) < 22:
                 rollouts = 7500
             else:

@@ -13,7 +13,7 @@ def randomMove(node):
 
 def getTestData():
     # number of games played
-    games = 100.0
+    games = 10.0
     gamesPlayed = 0.0
 
     # number of MCTS wins
@@ -28,7 +28,7 @@ def getTestData():
     rollouts = 100
 
     # value that would be used to manipulate how long thinking is
-    brainPower = 1.0
+    brainPower = 0.1
 
     print("TEST INFO:")
     print("Games to be played:", int(games))

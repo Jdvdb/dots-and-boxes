@@ -86,20 +86,20 @@ class DotsAndBoxes:
         if direction == 0:
             # make sure inputs are valid for horizontal pieces
             if dotInd >= self.rowDots or lineInd >= self.rowSpaces:
-                print("Invalid move, out of bounds")
+                # print("Invalid move, out of bounds")
                 return False
             if self.rows[dotInd][lineInd] == 1:
-                print('A line already exists there, try again')
+                # print('A line already exists there, try again')
                 return False
             self.rows[dotInd][lineInd] = 1
             self.moves.remove((0, dotInd, lineInd))
         else:
             # make sure moves are valid for vertical pieces
             if dotInd >= self.colDots or lineInd >= self.colSpaces:
-                print("Invalid move, out of bounds")
+                # print("Invalid move, out of bounds")
                 return False
             if self.cols[dotInd][lineInd] == 1:
-                print("A line already exists there, try again")
+                # print("A line already exists there, try again")
                 return False
             self.cols[dotInd][lineInd] = 1
             self.moves.remove((1, dotInd, lineInd))
