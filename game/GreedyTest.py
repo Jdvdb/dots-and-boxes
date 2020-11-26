@@ -3,29 +3,40 @@ import DBNode
 import DotsAndBoxes
 import MCTS
 import random
+import copy
 from pdb import set_trace as bp
 
 
-def randomMove(node):
-    randomId = random.sample(node.children, 1)
-    return randomId[0]
+def greedyMove(currentGame):
+    maxScore = -1
+    tempScore = -1
+    bestMove = (-1, -1, -1)
+    for move in currentGame.moves:
+        tempGame = copy.deepcopy(currentGame)
+        (direction, dotInd, lineInd) = move
+        tempGame.addLine(direction, dotInd, lineInd)
+
+        tempScore = tempGame.P2Score - currentGame.P2Score
+        if tempScore > maxScore:
+
+            maxScore = tempScore
+            bestMove = move
+
+    return bestMove
 
 
 def getTestData():
     # number of games played
-    games = 100.0
+    games = 25.0
     gamesPlayed = 0.0
 
     # number of MCTS wins
     MCTSWin = 0.0
-    # number of random wins
-    RandomWin = 0.0
+    # number of Greedy wins
+    GreedyWin = 0.0
 
-    # total score for MCTS and Random
+    # total score for MCTS and Greedy
     scores = [0.0, 0.0]
-
-    # number of rollouts for sim
-    rollouts = 100
 
     # value that would be used to manipulate how long thinking is
     brainPower = 1.0
@@ -48,15 +59,15 @@ def getTestData():
 
     while gamesPlayed < games:
         print("Game", int(gamesPlayed))
-        tempScores = playGame(rollouts)
+        tempScores = playGame(brainPower)
 
         scores[0] += tempScores[0]
         scores[1] += tempScores[1]
 
-        if scores[0] > scores[1]:
+        if tempScores[0] > tempScores[1]:
             MCTSWin += 1.0
         else:
-            RandomWin += 1.0
+            GreedyWin += 1.0
         print("P1:", tempScores[0], "P2:", tempScores[1])
         print()
 
@@ -65,16 +76,16 @@ def getTestData():
     print()
     print(games, "games finished.")
     print("MCTS WINS:", MCTSWin)
-    print("RANDOM WINS:", RandomWin)
+    print("Greedy WINS:", GreedyWin)
     print()
-    print("AVG. MCTS SCORE:", scores[0] / games)
-    print("AVG. RANDOM SCORES:", scores[1] / games)
+    print("AVG. MCTS SCORE:", float(scores[0]) / float(games))
+    print("AVG. Greedy SCORES:", float(scores[1]) / float(games))
     print()
     print("MCTS WIN RATIO:", MCTSWin / games)
-    print("RANDOM WIN RATIO", RandomWin / games)
+    print("Greedy WIN RATIO", GreedyWin / games)
 
 
-def playGame(totalRollouts):
+def playGame(brainPower):
     # temp game for the simulation
     tempGame = DotsAndBoxes.DotsAndBoxes()
 
@@ -89,12 +100,29 @@ def playGame(totalRollouts):
     tree = dict()
     tree[root.id] = root
 
-    nextComputerId, currentId = MCTS.MCTS(
-        tree, currentId, root.id, totalRollouts)
-
     while True:
         if not tempGame.player:
-            nextNode = randomMove(root)
+            move = greedyMove(tempGame)
+            (direction, dotInd, lineInd) = move
+            if tempGame.addLine(direction, dotInd, lineInd):
+                # find where the new move would be in the tree
+                nextNode = root.id
+                foundNextNode = False
+                for node in root.children:
+                    if tree[node].newMove == move:
+                        nextNode = node
+                        foundNextNode = True
+
+                if not foundNextNode:
+                    # if node not found, then create a new node in the tree for it
+                    (direction, dotInd, lineInd) = move
+                    newNode = DBNode.DBNode(
+                        tempGame, currentId, -1, move)
+                    newNode.board.addLine(
+                        direction, dotInd, lineInd)
+                    tree[currentId] = newNode
+                    nextNode = newNode.id
+                    currentId += 1
 
             # update the root for the computer
             root = tree[nextNode]
@@ -110,11 +138,13 @@ def playGame(totalRollouts):
                 rollouts = 3000
             nextComputerId, currentId = MCTS.MCTS(
                 tree, currentId, root.id, rollouts)
-            nextComputerId, currentId = MCTS.MCTS(
-                tree, currentId, root.id, totalRollouts)
 
             # update the root
             root = tree[nextComputerId]
+
+        tempGame = root.board
+
+        # root.board.printBoard()
 
         if root.board.checkEnd():
             return (root.board.P1Score, root.board.P2Score)

@@ -56,12 +56,10 @@ def MCTS(tree, currentId, rootId, rollouts):
             reward = 0
 
             # this will be the reward at the end of the tree
-            if currentNode.board.P1Score - currentNode.board.P2Score > 0 and currentNode.board.player:
-                reward = float(1)
-            elif currentNode.board.P2Score - currentNode.board.P1Score > 0 and not currentNode.board.player:
-                reward = float(1)
+            if currentNode.board.P1Score - currentNode.board.P2Score > 0:
+                reward = 0.5
             else:
-                reward = float(-1)
+                reward = -2.0**currentNode.board.P2Score
 
             # back propogate the value up the tree
             backPropogation(tree, currentNode, reward, rootId)
@@ -165,8 +163,6 @@ def rollout(currentNode, wlf):
 
         if p2Streak and not tempNode.board.player:
             multiplier *= 2.5
-            # multiplier *= float(len(tempNode.board.moves)) * \
-            #     float(tempNode.board.P2Score - tempNode.board.P1Score)
         if not tempNode.board.player:
             p2Streak = True
         else:
