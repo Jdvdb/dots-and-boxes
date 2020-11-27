@@ -1,8 +1,8 @@
-## dots-and-boxes
+# Dots and Boxes
 
-dots and boxes game/AI oponent for CMPUT 355 at UofA
+dots and boxes game/AI opponent for CMPUT 355 at UofA
 
-# Project Files
+## Project Files
 
 constants.py - a file that holds values that would normally be kept private.
 In our case, it held the font information since we used one from
@@ -40,7 +40,7 @@ README.md - Description of the project
 
 License - License for the project
 
-# Ways to Run the Project:
+## Ways to Run the Project:
 
 Game.py - Runs an interactive game of Dots and Boxes
 Instructions: Before starting the game, change the value of

@@ -1,3 +1,4 @@
+# Created by Jordan Van Den Bruel & Danny Zaiter
 import DBNode
 import DotsAndBoxes
 import MCTS

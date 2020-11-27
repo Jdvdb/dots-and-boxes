@@ -1,4 +1,4 @@
-# Class to play the game of dots and boxes on 8x6 dots
+# Created by Jordan Van Den Bruel & Danny Zaiter
 from pdb import set_trace as bp
 
 

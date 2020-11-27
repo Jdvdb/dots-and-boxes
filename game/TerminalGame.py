@@ -1,4 +1,4 @@
-# Driver Code For The Game
+# Created by Jordan Van Den Bruel & Danny Zaiter 2020
 import DBNode
 import DotsAndBoxes
 import random

@@ -1,4 +1,4 @@
-# Function and all necessary components for MCTS
+# Created by Jordan Van Den Bruel & Danny Zaiter
 import DotsAndBoxes
 import DBNode
 import random

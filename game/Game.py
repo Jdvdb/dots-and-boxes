@@ -1,3 +1,4 @@
+# Created by Jordan Van Den Bruel & Danny Zaiter
 import pygame
 import os
 import constants

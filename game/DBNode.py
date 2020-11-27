@@ -1,4 +1,4 @@
-# Class for nodes used in Dots and Boxes Game
+# Created by Jordan Van Den Bruel & Danny Zaiter
 import DotsAndBoxes
 
 
