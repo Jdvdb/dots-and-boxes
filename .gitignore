@@ -127,9 +127,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# Any private values are in a constants file
-constants.py
-
-# Remove any of the fonts we are using
-fonts

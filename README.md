@@ -1,33 +1,79 @@
-# dots-and-boxes
+## dots-and-boxes
+
 dots and boxes game/AI oponent for CMPUT 355 at UofA
 
-how to git 101:
-easiest way will be to download github desktop app but if you are using linux then command line will work just fine.
+# Project Files
 
-# getting started
-first thing you need to do is clone the repo. When on the website, click the green code button and you should see a URL you can copy.
-if you have the desktop app, then there is an option to open the repo in the app.
-if not, run 'git clone URL' where URL is whatever you can copy from the website.
+constants.py - a file that holds values that would normally be kept private.
+In our case, it held the font information since we used one from
+https://fonts.adobe.com/fonts/lato
 
-# checking your current branch
-we will use branches when working on different features. generally a branch is named something like 'feature/game' or 'bug/line-colours'
-the first part of it is what you are working on (i.e. feature, bug, organinizing) and the second is more specific to what you are building/fixing
+DBNode.py - a class for a Dots and Boxes Node used in MCTS
 
-in the desktop app there is a drop down option to take care of branches.
-in git, you can see what branch you're on and all other branches in the repo using 'git branch'
-to make a new branch, use 'git checkout -b new-branch-name'. Don't forget to push it to github using 'git push origin new-branch-name'
-keep in mind 'new-branch-name' is whatever you want to call the branch
+DotsAndBoxes.py - a class for a game of Dots and Boxes
 
-to switch between branches, use 'git checkout branch-name' where the branch name is the name of the branch you want to switch to
+Game.py - driver for game intended for AI vs Human.
+Note that at the start of the file, BRAIN_POWER can be adjusted to change
+the time given to the computer to think. 1 is default value. It is simply
+a multiplier for the number of rollouts used in a game
 
-# pulling
-simply use 'git pull' to get everything up to date. i would reccomend doing this whenever you start working to get new changes that have been pushed
+GreedyTest.py - a program that will simulate a desired number of games
+against a greedy opponent that we programmed. It will play randomly
+unless it knows a certain move will increase its total points. If there
+is such a child, then it will pick the move that gives the most points.
 
-# what to do when you want to upload your code
-when working on code, there are 3 steps to getting it online.
-first, you need to prepare things for staging. To do this, use 'git add .'
-next, use 'git commit -m "upload message"' where upload message is whatever info you have for the current commit. 
-finally, use 'git push origin' to send the changes up! 
+MCTS.py - Driver for the Monte Carlo Tree Search Algorithm. Contains all
+relevant functions to execute the algorithm with a game of Dots and Boxes.
 
-# what happens when you finish all the work needed on a branch
-you just make a pull request on the github website!
+RandomTest.py - a program that will simulate a desired number of games against a
+random opponent that we programmed. It will always play a random move.
+
+TerminalGame.py - A way to play the game in the terminal. To play a piece,
+3 numbers should be given, each separated by a space with no trailing characters
+
+fonts/Lato\* - there should be multiple Lato stored for the PyGame version.
+
+Tests/\* - test results made by GreedyTest.py, RandomTest.py, and one hand made one. All formulated based on
+last edits to MCTS.
+
+README.md - Description of the project
+
+License - License for the project
+
+# Ways to Run the Project:
+
+Game.py - Runs an interactive game of Dots and Boxes
+Instructions: Before starting the game, change the value of
+BRAIN_POWER in the file for desired AI strength between 0 and 2.
+In the terminal, run 'python3 Game.py'. Use your mouse to
+select where you want to play whenever it is your turn.
+The game closes as soon as the final move is made.
+The results will be printed to the terminal
+
+TerminalGame.py - Runs a version mainly used for testing of Dots and Boxes.
+Before starting the game, change the value of
+BRAIN_POWER in the file for desired AI strength between 0 and 2.
+Instructions: In the terminal, run 'python3 TerminalGame.py'. When
+prompted to print a move, enter 3 number separted with a space as follows:
+first: 0 to represent horizontal line, 1 to represent a vertical line.
+second: if using a horizontal piece, then it is the row number (0 at top, 3 at bottom).
+if using a vertical piece, then it is col number (0 on the left, 3 on the right).
+third: if using a horizontal piece, then it is the index of the space
+(0 on the left, 2 on the right).
+if using a vertical piece, then it is the index of the space (0 at the
+top, 2 at the bottom)
+e.g. 0 2 1
+
+RandomTest.py - Will test the AI against a random opponent.
+This can take a long time depending on brain power and games.
+Before running, alter values with NOTE comments at
+the top of the file for desired output.
+In the terminal, run 'python3 RandomTest.py > results.txt' where
+results.txt is the file you want the results stored in.
+
+RandomTest.py - Will test the AI against a greedy opponent.
+This can take a long time depending on brain power and games.
+Before running, alter values with NOTE comments at
+the top of the file for desired output.
+In the terminal, run 'python3 RandomTest.py > results.txt' where
+results.txt is the file you want the results stored in.

@@ -1,0 +1,26 @@
+Hand Recorded Tests from Jordan
+
+Game 1:
+AI Score: 1
+Human Score: 8
+Human Won
+
+Game 2:
+AI Score: 8
+Human Score: 1
+AI Won
+
+Game 3:
+AI Score: 2
+Human Score: 7
+Human Won
+
+Game 4:
+AI Score: 7
+Human Score: 2
+AI Won
+
+Game 5:
+AI Score: 3
+Human Score: 6
+Human Won
