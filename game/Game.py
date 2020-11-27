@@ -1,4 +1,4 @@
-# Created by Jordan Van Den Bruel & Danny Zaiter
+# Created by Jordan Van Den Bruel & Danny Zaiter 2020
 import pygame
 import os
 import constants
@@ -20,7 +20,7 @@ DOT_CENTER_HEIGHT = 300
 DOT_CENTER_WIDTH = 400
 
 # NOTE: This is a value you can modify to give the computer more/less time to think, 1 is standard
-BRAIN_POWER = 1
+BRAIN_POWER = 1.0
 
 
 def endGame(board):

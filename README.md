@@ -45,6 +45,7 @@ License - License for the project
 Game.py - Runs an interactive game of Dots and Boxes
 Instructions: Before starting the game, change the value of
 BRAIN_POWER in the file for desired AI strength between 0 and 2.
+Ensure you have an up to date version of PyGame installed too.
 In the terminal, run 'python3 Game.py'. Use your mouse to
 select where you want to play whenever it is your turn.
 The game closes as soon as the final move is made.

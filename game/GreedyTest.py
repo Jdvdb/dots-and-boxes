@@ -1,4 +1,4 @@
-# Created by Jordan Van Den Bruel & Danny Zaiter
+# Created by Jordan Van Den Bruel & Danny Zaiter 2020
 import DBNode
 import DotsAndBoxes
 import MCTS
@@ -37,7 +37,7 @@ Driver function that will prepare the tests and print the result
 
 def getTestData():
     # NOTE number of games played
-    games = 25.0
+    games = 10.0
     gamesPlayed = 0.0
 
     # number of MCTS wins
