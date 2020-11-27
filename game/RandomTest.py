@@ -1,9 +1,13 @@
-# Driver Code For The Game
 import DBNode
 import DotsAndBoxes
 import MCTS
 import random
-from pdb import set_trace as bp
+
+"""
+Plays a random move from the current node in the tree
+Arguments: node = DBNode representing the current state of the game
+Returns a random child ID of that node
+"""
 
 
 def randomMove(node):
@@ -11,8 +15,13 @@ def randomMove(node):
     return randomId[0]
 
 
+"""
+Driver function that will prepare the tests and print the result
+"""
+
+
 def getTestData():
-    # number of games played
+    # NOTE number of games played
     games = 100.0
     gamesPlayed = 0.0
 
@@ -24,7 +33,7 @@ def getTestData():
     # total score for MCTS and Random
     scores = [0.0, 0.0]
 
-    # value that would be used to manipulate how long thinking is
+    # NOTE value that would be used to manipulate how long thinking is
     brainPower = 0.1
 
     print("TEST INFO:")
@@ -43,13 +52,16 @@ def getTestData():
     print("Game Results:")
     print()
 
+    # simulate the games
     while gamesPlayed < games:
         print("Game", int(gamesPlayed))
         tempScores = playGame(brainPower)
 
+        # add the scores from these games to the total score
         scores[0] += tempScores[0]
         scores[1] += tempScores[1]
 
+        # increment the win value appropriately
         if scores[0] > scores[1]:
             MCTSWin += 1.0
         else:
@@ -69,6 +81,13 @@ def getTestData():
     print()
     print("MCTS WIN RATIO:", MCTSWin / games)
     print("RANDOM WIN RATIO", RandomWin / games)
+
+
+"""
+Function to play a simulation with a random opponent
+Arguments: brainPower: the brain power desired for the simulation
+Returns: a tuple a (P1/AI score, P2/Human score)
+"""
 
 
 def playGame(brainPower):
@@ -115,6 +134,5 @@ def playGame(brainPower):
             return (root.board.P1Score, root.board.P2Score)
 
 
-# right now, assume computer plays first
 if __name__ == "__main__":
     getTestData()

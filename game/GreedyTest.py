@@ -1,10 +1,14 @@
-# Driver Code For The Game
 import DBNode
 import DotsAndBoxes
 import MCTS
 import random
 import copy
-from pdb import set_trace as bp
+
+"""
+Plays a random move from the current node in the tree
+Arguments: node = DBNode representing the current state of the game
+Returns a random child ID of that node
+"""
 
 
 def greedyMove(currentGame):
@@ -25,8 +29,13 @@ def greedyMove(currentGame):
     return bestMove
 
 
+"""
+Driver function that will prepare the tests and print the result
+"""
+
+
 def getTestData():
-    # number of games played
+    # NOTE number of games played
     games = 25.0
     gamesPlayed = 0.0
 
@@ -38,7 +47,7 @@ def getTestData():
     # total score for MCTS and Greedy
     scores = [0.0, 0.0]
 
-    # value that would be used to manipulate how long thinking is
+    # NOTE value that would be used to manipulate how long thinking is
     brainPower = 1.0
 
     print("TEST INFO:")
@@ -57,13 +66,16 @@ def getTestData():
     print("Game Results:")
     print()
 
+    # simulate the games
     while gamesPlayed < games:
         print("Game", int(gamesPlayed))
         tempScores = playGame(brainPower)
 
+        # add the scores from these games to the total scores
         scores[0] += tempScores[0]
         scores[1] += tempScores[1]
 
+        # increment the win value appropriately
         if tempScores[0] > tempScores[1]:
             MCTSWin += 1.0
         else:
@@ -83,6 +95,13 @@ def getTestData():
     print()
     print("MCTS WIN RATIO:", MCTSWin / games)
     print("Greedy WIN RATIO", GreedyWin / games)
+
+
+"""
+Function to play a simulation with a greedy opponent
+Arguments: brainPower: the brain power desired for the simulation
+Returns: a tuple a (P1/AI score, P2/Human score)
+"""
 
 
 def playGame(brainPower):

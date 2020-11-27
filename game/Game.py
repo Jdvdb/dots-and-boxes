@@ -48,6 +48,7 @@ def setup(screen):
     pygame.draw.rect(screen, WHITE, (WIDTH/2 - GAME_WIDTH/2 + 15,
                                      HEIGHT/2 - GAME_HEIGHT/2 + 5, GAME_WIDTH - 10,  GAME_HEIGHT - 10))
 
+    # Render the title
     text = font.render('Dots and Boxes', True, BLACK, WHITE)
     text_rect = text.get_rect()
     text_rect.center = (WIDTH/2, 20)
@@ -56,6 +57,7 @@ def setup(screen):
 
     font = pygame.font.Font(constants.title, 25)
 
+    # Write out scores for players
     text = font.render('Player: 0', True, BLACK, WHITE)
     text_rect = text.get_rect()
     text_rect.center = (WIDTH-49, 10)
@@ -66,8 +68,7 @@ def setup(screen):
     text_rect.center = (WIDTH-70, 40)
     screen.blit(text, text_rect)
 
-    pygame.display.update()
-
+    # Write out who is playing
     text = font.render('Playing Now: ', True, BLACK, WHITE)
     text_rect = text.get_rect()
     text_rect.center = (100, 10)
@@ -107,14 +108,10 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    print('test')
-    print(os.listdir())
-
     setup(screen)
     # variable that tells you when the game ends
     running = True
 
-    print('play game')
     tempGame = DotsAndBoxes.DotsAndBoxes()
 
     # value for creating IDs
@@ -138,6 +135,7 @@ def main():
     col_borders = copy.deepcopy(tempGame.cols)
     boxes = copy.deepcopy(tempGame.boxes)
 
+    # draw out the the board for the screen
     for i in range(len(row_borders)):
         for j in range(len(row_borders[i])):
             row_borders[i][j] = pygame.Rect(
@@ -164,24 +162,26 @@ def main():
 
     pygame.display.update()
 
-    # game loop
+    # main game loop
     while running:
+        # get events from pygame
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
         pygame.display.update()
-
+        # instructions for P2/Human turn
         if not tempGame.player:
             pos = None
             move = None
 
+            # wait for a move to be played
             while move == None:
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         pos = pygame.mouse.get_pos()
-                        print(pos)
 
+                        # check to see where on the game board someone tries to play
                         for i in range(len(row_borders)):
                             for j in range(len(row_borders[i])):
                                 if row_borders[i][j].collidepoint(pos):
@@ -227,9 +227,7 @@ def main():
                                 # update the root for the computer
                                 root = tree[nextNode]
 
-                            else:
-                                print("There is already a line there, try again")
-
+        # instructions for P1/AI
         else:
             # determine how many rollouts should be done based on depth into game
             if len(root.board.moves) < 12:
@@ -248,12 +246,14 @@ def main():
             # update the root
             root = tree[nextComputerId]
 
+        # update the current game board
         tempGame = root.board
 
         # end the game if it is done
         if tempGame.checkEnd():
             endGame(tempGame)
 
+        # draw in the computer's most recent move
         (direction, i, j) = root.newMove
 
         if direction == 0:
@@ -263,7 +263,6 @@ def main():
             pygame.draw.rect(screen, BLACK, col_borders[i][j])
 
         # draw filler boxes for captured squares
-
         for i in range(len(tempGame.boxes)):
             for j in range(len(tempGame.boxes[i])):
                 if tempGame.boxes[j][i]:
@@ -300,9 +299,6 @@ def main():
 
         pygame.display.update()
 
-        pygame.display.update()
-        # beginning of border/box displaying in pyGame
 
-        # end of border/box displaying in pyGame
 if __name__ == "__main__":
     main()

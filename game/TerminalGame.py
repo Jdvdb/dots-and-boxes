@@ -1,19 +1,26 @@
 # Driver Code For The Game
 import DBNode
 import DotsAndBoxes
+import random
 import MCTS
-from pdb import set_trace as bp
+
+# NOTE: This is a value you can modify to give the computer more/less time to think, 1 is standard
+BRAIN_POWER = 1
 
 
 def endGame(board):
-    print("game done, work on this later...", board.boxes)
+    print("Game Done")
+    print("P1:", board.P1Score, "P2:", board.P2Score)
+    if board.P1Score > board.P2Score:
+        print("AI Won!")
+    else:
+        print("Human Won!")
     quit()
 
 
 # right now, assume computer plays first
 if __name__ == "__main__":
     # all of this is test stuff right now
-    print('loading')
     tempGame = DotsAndBoxes.DotsAndBoxes()
 
     # value for creating IDs
@@ -27,18 +34,17 @@ if __name__ == "__main__":
     tree = dict()
     tree[root.id] = root
 
-    # number of rollouts to be performed
-    rollouts = 2000
+    # this is a placeholder for what MCTS will use to determine number of rollouts
+    rollouts = 1
 
     # flag to keep playing the game
     playing = True
-
-    # TODO if player ever goes first, add a flag and special method for firstMove
 
     nextComputerId, currentId = MCTS.MCTS(
         tree, currentId, root.id, rollouts)
 
     while playing:
+        # this is for P2/Human turn
         if not tempGame.player:
             print('Pick a move')
             move = input().split(" ")
@@ -80,9 +86,21 @@ if __name__ == "__main__":
             else:
                 print("There is already a line there, try again")
 
+        # this is for P1/AI
         else:
-            # this means computer turn
             print("Computer is thinking...")
+
+            # determine how many rollouts should be done based on depth into game
+            if len(root.board.moves) < 12:
+                rollouts = 13000
+            elif len(root.board.moves) < 16:
+                rollouts = 11000
+            elif len(root.board.moves) < 22:
+                rollouts = 8000
+            else:
+                rollouts = 3500
+            # modify the number of rollouts by the power given by the user
+            rollouts *= BRAIN_POWER
 
             nextComputerId, currentId = MCTS.MCTS(
                 tree, currentId, root.id, rollouts)

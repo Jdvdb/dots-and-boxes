@@ -4,9 +4,6 @@ import DBNode
 import random
 import math
 import copy
-from pdb import set_trace as bp
-
-# NOTE right now it is assumed computer is P1, this will be fixed once the code works
 
 """
 Driver of the MCTS algorithm
@@ -94,26 +91,6 @@ def randomSelect(tree, currentNode):
 
 
 """
-Greedily select next best child
-tree: dictionary with IDs as keys and their respectives nodes as the values
-currentNode: the ID of the current node
-Returns best child Id
-"""
-
-
-def greedySelect(tree, currentNode):
-    maxId = -1
-    maxValue = float('-inf')
-
-    for child in currentNode.children:
-        if float(tree[child].reward)/float(tree[child].visitCount) > maxValue:
-
-            maxValue = float(tree[child].reward)/float(tree[child].visitCount)
-            maxId = child
-    return maxId
-
-
-"""
 Expands the tree by adding all of the children of some node
 tree: dictionary with IDs as keys and their respectives nodes as the values
 currentNode: the ID of the current node
@@ -148,30 +125,6 @@ currentNode: the current piece being investigated
 Returns a reward for the game
 """
 
-
-# def rollout(currentNode, wlf):
-#     # node that will be used for simulation
-#     tempNode = copy.deepcopy(currentNode)
-#     multiplier = 1.0 + 2.0*tempNode.board.P2Score
-#     p2Streak = not tempNode.board.player
-#     while len(tempNode.board.moves) != 0:
-#         # select a random move available in the game
-#         play = random.choice(tuple(tempNode.board.moves))
-#         (direction, dotInd, lineInd) = play
-#         # this will return True if the game is done
-#         tempNode.board.addLine(direction, dotInd, lineInd)
-
-#         if p2Streak and not tempNode.board.player:
-#             multiplier *= 2 * (float(len(currentNode.board.moves)) / 24.0)
-#         if not tempNode.board.player:
-#             p2Streak = True
-#         else:
-#             p2Streak = False
-
-#     if (tempNode.board.P1Score > tempNode.board.P2Score):
-#         return 1.0
-#     else:
-#         return -1.0 * multiplier
 
 def rollout(currentNode, wlf):
     # node that will be used for simulation
@@ -246,6 +199,7 @@ def maxChild(tree, currentNode):
         tempNode = tree[child]
         # best node has the greatest reward compared to visit count
         winValue = float(tempNode.reward) / float(tempNode.visitCount)
+        # uncomment bellow lines to get diagnostics for each child of current node
         # print("Child", tree[child].newMove, "visits",
         #       tree[child].visitCount, "reward:", tree[child].reward, "win value:", winValue)
 

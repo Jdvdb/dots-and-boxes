@@ -173,10 +173,10 @@ class DotsAndBoxes:
         Prints the current board state to the console
         Returns nothing
         """
-        # print arrays
-        print("row and col")
-        print(self.rows)
-        print(self.cols)
+        # print arrays if desired
+        # print("row and col")
+        # print(self.rows)
+        # print(self.cols)
         # show player scores and turn
         if self.player:
             print("Player turn: P1")
