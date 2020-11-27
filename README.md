@@ -2,6 +2,10 @@
 
 dots and boxes game/AI opponent for CMPUT 355 at UofA
 
+## Demo
+https://drive.google.com/file/d/1Wsfn7hHOK2_969eaxPolqBcmxguxh4Af/view?usp=sharing
+This link can be viewed through uAlberta accounts only.
+
 ## Project Files
 
 constants.py - a file that holds values that would normally be kept private.
