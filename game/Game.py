@@ -180,9 +180,11 @@ def main():
             while move == None:
                 for event in pygame.event.get():
                     if event.type == pygame.MOUSEBUTTONDOWN:
+                        #gets the coordinates of a mouse click
                         pos = pygame.mouse.get_pos()
 
                         # check to see where on the game board someone tries to play
+                        # update that rectangle to black
                         for i in range(len(row_borders)):
                             for j in range(len(row_borders[i])):
                                 if row_borders[i][j].collidepoint(pos):
@@ -269,7 +271,7 @@ def main():
                 if tempGame.boxes[j][i]:
                     pygame.draw.rect(screen, BLACK, boxes[i][j])
 
-        # score
+        # update score
         font = pygame.font.Font(constants.title, 25)
 
         text = font.render('Player: %d' % tempGame.P2Score, True, BLACK, WHITE)
@@ -283,6 +285,7 @@ def main():
         text_rect.center = (WIDTH-70, 40)
         screen.blit(text, text_rect)
 
+        #update current player
         pygame.draw.rect(screen, WHITE, (0, 0, 200, 50))
         text = font.render('Playing Now: ', True, BLACK, WHITE)
         text_rect = text.get_rect()
@@ -298,6 +301,7 @@ def main():
         text_rect.center = (100, 40)
         screen.blit(text, text_rect)
 
+        #push any changes to screen 
         pygame.display.update()
 
 
