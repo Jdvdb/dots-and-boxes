@@ -76,7 +76,7 @@ the top of the file for desired output.
 In the terminal, run 'python3 RandomTest.py > results.txt' where
 results.txt is the file you want the results stored in.
 
-RandomTest.py - Will test the AI against a greedy opponent.
+GreedyTest.py - Will test the AI against a greedy opponent.
 This can take a long time depending on brain power and games.
 Before running, alter values with NOTE comments at
 the top of the file for desired output.
